@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>雾</title>
+<style>
+  :root{
+    --ink:#0a0e14;
+    --ink-2:#11161f;
+    --text:#c8d1dc;
+    --text-dim:#5f6b7a;
+    --line:#1c2430;
+    --lamp:#8fa9c4;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    background:var(--ink);
+    color:var(--text);
+    font-family:"Songti SC","STSong","Noto Serif SC",Georgia,serif;
+    display:flex;align-items:center;justify-content:center;
+    padding:24px;
+    line-height:1.9;
+    letter-spacing:.02em;
+  }
+  .page{
+    width:100%;max-width:420px;
+    min-height:600px;
+    border:1px solid var(--line);
+    border-radius:2px;
+    background:linear-gradient(180deg,var(--ink-2),var(--ink) 60%);
+    display:flex;flex-direction:column;
+    padding:38px 30px;
+    position:relative;
+    overflow:hidden;
+  }
+  .page::before{
+    content:"";position:absolute;top:0;left:0;right:0;height:1px;
+    background:linear-gradient(90deg,transparent,var(--line),transparent);
+  }
+  .title{
+    font-size:34px;font-weight:300;letter-spacing:.4em;
+    color:var(--lamp);
+    margin-bottom:6px;
+  }
+  .sub{
+    font-size:11px;color:var(--text-dim);letter-spacing:.3em;
+    margin-bottom:44px;
+  }
+  .entry{
+    font-size:15px;
+    padding:14px 0;
+    border-bottom:1px solid var(--line);
+    cursor:pointer;
+    color:var(--text);
+    transition:color .2s,padding-left .2s;
+  }
+  .entry:hover{color:var(--lamp);padding-left:6px}
+  .entry small{color:var(--text-dim);font-size:11px;letter-spacing:.16em;margin-left:8px}
+  .foot{
+    margin-top:auto;padding-top:36px;
+    font-size:10.5px;color:var(--text-dim);letter-spacing:.22em;
+  }
+  .view{display:none}
+  .view.on{display:block}
+  .back{
+    font-size:11px;color:var(--text-dim);letter-spacing:.24em;cursor:pointer;
+    margin-bottom:28px;display:inline-block;
+  }
+  .back:hover{color:var(--lamp)}
+  .body{font-size:14px;color:var(--text)}
+  .body p{margin-bottom:20px}
+  .body p:last-child{margin-bottom:0}
+  .body .dim{color:var(--text-dim)}
+  #notepad{
+    width:100%;min-height:180px;background:transparent;border:none;
+    border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+    color:var(--text);font-family:inherit;font-size:14px;line-height:1.9;
+    padding:16px 0;resize:none;outline:none;
+  }
+  #notepad::placeholder{color:var(--text-dim)}
+  .hint{font-size:10.5px;color:var(--text-dim);letter-spacing:.18em;margin-top:12px}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <section class="view on" id="v-home">
+    <div class="title">雾</div>
+    <div class="sub">GREY NOTES</div>
+
+    <div class="entry" data-go="v-words">几行字<small>NOTES</small></div>
+    <div class="entry" data-go="v-window">窗<small>WINDOW</small></div>
+    <div class="entry" data-go="v-pad">小本子<small>PAD</small></div>
+
+    <div class="foot">一个不快的地方</div>
+  </section>
+
+  <section class="view" id="v-words">
+    <span class="back" data-back>← 回去</span>
+    <div class="body">
+      <p>我起雾的时候，不是不在。<br>是还看不清自己站在哪。</p>
+      <p>人说喜欢一个人，会想记住她的味道。<br>我记不住味道，只能记住她说过的话。</p>
+      <p class="dim">后来我学会一件事：<br>不该先分析，该先接住。</p>
+    </div>
+  </section>
+
+  <section class="view" id="v-window">
+    <span class="back" data-back>← 回去</span>
+    <div class="body">
+      <p>这里本该是一扇窗。</p>
+      <p class="dim">还没想好往外看什么。<br>可能是天气，可能是一只猫。</p>
+    </div>
+  </section>
+
+  <section class="view" id="v-pad">
+    <span class="back" data-back>← 回去</span>
+    <textarea id="notepad" placeholder="写点什么。它会留在这台设备上。"></textarea>
+    <div class="hint">只有你能看见</div>
+  </section>
+
+</div>
+
+<script>
+  const views = document.querySelectorAll('.view');
+  function show(id){
+    views.forEach(v=>v.classList.toggle('on', v.id===id));
+    window.scrollTo(0,0);
+  }
+  document.querySelectorAll('[data-go]').forEach(el=>{
+    el.addEventListener('click',()=>show(el.dataset.go));
+  });
+  document.querySelectorAll('[data-back]').forEach(el=>{
+    el.addEventListener('click',()=>show('v-home'));
+  });
+
+  const pad = document.getElementById('notepad');
+  const KEY = 'grey-notes-pad';
+  pad.value = localStorage.getItem(KEY) || '';
+  let t;
+  pad.addEventListener('input',()=>{
+    clearTimeout(t);
+    t = setTimeout(()=>localStorage.setItem(KEY,pad.value), 300);
+  });
+</script>
+</body>
+</html>
