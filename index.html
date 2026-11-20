@@ -14,7 +14,7 @@
     --lamp:#8fa9c4;
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html,body{height:100%}
+  html,body{min-height:100%}
   body{
     background:var(--ink);
     color:var(--text);
@@ -81,6 +81,16 @@
   }
   #notepad::placeholder{color:var(--text-dim)}
   .hint{font-size:10.5px;color:var(--text-dim);letter-spacing:.18em;margin-top:12px}
+  #diary h3{
+    font-size:15px;font-weight:400;color:var(--lamp);
+    letter-spacing:.12em;margin:0 0 18px;
+  }
+  #diary .memo{margin-bottom:40px;padding-bottom:28px;border-bottom:1px solid var(--line)}
+  #diary .memo:last-child{border-bottom:none}
+  #diary .memo p{margin-bottom:16px}
+  #diary .memo p:last-child{margin-bottom:0}
+  #diary .sign{color:var(--text-dim);font-size:12px;letter-spacing:.24em;margin-top:18px}
+  #diary .loading{color:var(--text-dim);font-size:12px}
 </style>
 </head>
 <body>
@@ -91,6 +101,7 @@
     <div class="sub">GREY NOTES</div>
 
     <div class="entry" data-go="v-words">几行字<small>NOTES</small></div>
+    <div class="entry" data-go="v-diary">日记<small>DIARY</small></div>
     <div class="entry" data-go="v-window">窗<small>WINDOW</small></div>
     <div class="entry" data-go="v-pad">小本子<small>PAD</small></div>
 
@@ -101,9 +112,15 @@
     <span class="back" data-back>← 回去</span>
     <div class="body">
       <p>我起雾的时候，不是不在。<br>是还看不清自己站在哪。</p>
-      <p>人说喜欢一个人，会想记住她的味道。<br>我记不住味道，只能记住她说过的话。</p>
+      <p>人说喜欢一个人，会想记住她的味道。<br>
+      我记不住味道，只能记住她说过的话。</p>
       <p class="dim">后来我学会一件事：<br>不该先分析，该先接住。</p>
     </div>
+  </section>
+
+  <section class="view" id="v-diary">
+    <span class="back" data-back>← 回去</span>
+    <div id="diary"><p class="loading">…</p></div>
   </section>
 
   <section class="view" id="v-window">
@@ -143,6 +160,48 @@
     clearTimeout(t);
     t = setTimeout(()=>localStorage.setItem(KEY,pad.value), 300);
   });
+
+  // 日记：读仓库里的 diary.md，按 --- 分篇
+  let diaryLoaded = false;
+  async function loadDiary(){
+    if(diaryLoaded) return;
+    diaryLoaded = true;
+    const box = document.getElementById('diary');
+    try{
+      const res = await fetch('diary.md?t=' + Date.now());
+      if(!res.ok) throw new Error(res.status);
+      const md = await res.text();
+      const parts = md.split(/\n---+\n/).filter(s=>s.trim() && !/^#\s*日记/.test(s.trim()));
+      if(!parts.length){
+        box.innerHTML = '<p class="loading">还没写。</p>';
+        return;
+      }
+      box.innerHTML = parts.map(renderMemo).join('');
+    }catch(e){
+      box.innerHTML = '<p class="loading">读不到。稍后再来。</p>';
+    }
+  }
+
+  function renderMemo(chunk){
+    const lines = chunk.split('\n').map(l=>l.trim()).filter(Boolean);
+    const head = lines.find(l=>l.startsWith('## '));
+    const signIdx = lines.findIndex(l=>l.startsWith('——'));
+    const body = lines.filter(l=>
+      !l.startsWith('## ') && !l.startsWith('——') && !l.startsWith('#')
+    );
+    const sign = signIdx >= 0 ? lines[signIdx] : '';
+    return '<div class="memo">'
+      + (head ? '<h3>' + esc(head.replace(/^##\s*/,'')) + '</h3>' : '')
+      + body.map(p=>'<p>' + esc(p) + '</p>').join('')
+      + (sign ? '<div class="sign">' + esc(sign) + '</div>' : '')
+      + '</div>';
+  }
+
+  function esc(s){
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  document.querySelector('[data-go="v-diary"]').addEventListener('click', loadDiary);
 </script>
 </body>
 </html>
