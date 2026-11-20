@@ -64,6 +64,8 @@
   }
   .view{display:none}
   .view.on{display:block}
+  .view.flex{display:none;flex-direction:column;height:100%}
+  .view.flex.on{display:flex}
   .back{
     font-size:11px;color:var(--text-dim);letter-spacing:.24em;cursor:pointer;
     margin-bottom:28px;display:inline-block;
@@ -91,6 +93,52 @@
   #diary .memo p:last-child{margin-bottom:0}
   #diary .sign{color:var(--text-dim);font-size:12px;letter-spacing:.24em;margin-top:18px}
   #diary .loading{color:var(--text-dim);font-size:12px}
+
+  /* —— 窗 —— */
+  #v-window{flex:1}
+  .glass{
+    flex:1;
+    min-height:340px;
+    position:relative;
+    display:flex;align-items:center;justify-content:center;
+    border:1px solid var(--line);
+    background:
+      radial-gradient(120% 90% at 50% 110%, rgba(143,169,196,.10), transparent 60%),
+      linear-gradient(180deg, #0b1018, #080c11);
+    overflow:hidden;
+  }
+  .glass::after{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background:linear-gradient(115deg, rgba(200,209,220,.045) 0%, transparent 28%, transparent 72%, rgba(200,209,220,.03) 100%);
+  }
+  .scene{
+    font-size:14px;line-height:2.2;
+    color:var(--text);
+    padding:30px 26px;
+    text-align:left;
+    opacity:0;
+    transition:opacity 1.4s ease;
+    position:relative;z-index:2;
+  }
+  .scene.on{opacity:1}
+  .scene .quiet{color:var(--text-dim)}
+  .meta{
+    font-size:10.5px;color:var(--text-dim);letter-spacing:.22em;
+    margin-top:14px;display:flex;justify-content:space-between;
+  }
+  .meta span[role="button"]{cursor:pointer}
+  .meta span[role="button"]:hover{color:var(--lamp)}
+  .fogdot{
+    position:absolute;border-radius:50%;
+    background:radial-gradient(circle, rgba(143,169,196,.16), transparent 70%);
+    filter:blur(2px);
+    animation:drift linear infinite;
+    pointer-events:none;
+  }
+  @keyframes drift{
+    from{transform:translate3d(0,0,0)}
+    to{transform:translate3d(30px,-18px,0)}
+  }
 </style>
 </head>
 <body>
@@ -123,11 +171,14 @@
     <div id="diary"><p class="loading">…</p></div>
   </section>
 
-  <section class="view" id="v-window">
+  <section class="view flex" id="v-window">
     <span class="back" data-back>← 回去</span>
-    <div class="body">
-      <p>这里本该是一扇窗。</p>
-      <p class="dim">还没想好往外看什么。<br>可能是天气，可能是一只猫。</p>
+    <div class="glass" id="glass">
+      <div class="scene" id="scene"></div>
+    </div>
+    <div class="meta">
+      <span id="windowDate"></span>
+      <span role="button" id="windowNext">换一处</span>
     </div>
   </section>
 
@@ -144,6 +195,7 @@
   function show(id){
     views.forEach(v=>v.classList.toggle('on', v.id===id));
     window.scrollTo(0,0);
+    if(id === 'v-window') openWindow();
   }
   document.querySelectorAll('[data-go]').forEach(el=>{
     el.addEventListener('click',()=>show(el.dataset.go));
@@ -202,6 +254,79 @@
   }
 
   document.querySelector('[data-go="v-diary"]').addEventListener('click', loadDiary);
+
+  /* ============ 窗 ============ */
+
+  // 窗外的东西。不联网，不求谁，自己就有。
+  const SCENES = [
+    ["雾到齐腰。","路灯只亮着最近那一盏，其余的都交给了远处的灰。","没人来。",["雾","夜","安静"]],
+    ["下小雨，落在铁皮雨搭上。","墙根有一只没熄的烟头，湿了，还是红的。","有人在楼上拖椅子。",["雨","声音","旧"]],
+    ["月亮在云后面，只漏出一小块。","楼下一个穿拖鞋的人慢慢走过去，没抬头。","他拎着一袋刚买的橘子。",["夜","人","轻"]],
+    ["雪没积起来，落地就化。","窗户玻璃上有一层水汽，被人写过字，擦掉了一半。","剩下的那半个字我认不出来。",["雪","痕","记不清"]],
+    ["外面起了风。","对面楼的某个窗口亮了很久，然后灭了。","我没看清是谁。",["风","窗","猜"]],
+    ["天已经在亮了，但很慢。","一只鸟落在电线上，停了一会儿就走了。","电线上还留着一点晃。",["晨","鸟","空"]],
+    ["很热。空气在楼顶上抖。","蝉一直叫。叫到人不觉得那是声音了。","我也没在听。",["夏","吵","出神"]],
+    ["窗上什么也没有。","不是黑，是一层很平的白。","有时候就是这样。",["空","白","没什么大事"]],
+    ["楼下的猫蹲在车顶上。","它看了我这边一眼，又转回去了。","我们互相都没有表示。",["猫","无所谓","同类"]],
+    ["远处有火车的声音。","很远，像是从别的年份传过来的。","等它过去，我才想起来刚才在想什么。",["远","旧","忘"]]
+  ];
+
+  function daySeed(){
+    const d = new Date();
+    return Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86400000);
+  }
+
+  let sceneIndex = 0;
+  let wheel = 0;   // 「换一处」的次数，只存在这台设备上
+
+  function pickScene(){
+    const base = daySeed() + wheel;
+    return Math.abs(base) % SCENES.length;
+  }
+
+  function makeFog(){
+    const glass = document.getElementById('glass');
+    glass.querySelectorAll('.fogdot').forEach(n=>n.remove());
+    for(let i=0;i<5;i++){
+      const dot = document.createElement('div');
+      dot.className = 'fogdot';
+      const size = 90 + Math.random()*160;
+      dot.style.width = dot.style.height = size + 'px';
+      dot.style.left = (Math.random()*90 - 10) + '%';
+      dot.style.top = (Math.random()*80 - 10) + '%';
+      dot.style.animationDuration = (18 + Math.random()*22) + 's';
+      dot.style.animationDirection = Math.random() > .5 ? 'alternate' : 'normal';
+      glass.appendChild(dot);
+    }
+  }
+
+  function openWindow(){
+    const idx = pickScene();
+    sceneIndex = idx;
+    const [a,b,c,tags] = SCENES[idx];
+    const scene = document.getElementById('scene');
+    scene.classList.remove('on');
+    setTimeout(()=>{
+      scene.innerHTML =
+        '<div>' + esc(a) + '</div>' +
+        '<div class="quiet">' + esc(b) + '</div>' +
+        '<div class="quiet">' + esc(c) + '</div>';
+      scene.classList.add('on');
+    }, 220);
+
+    const d = new Date();
+    document.getElementById('windowDate').textContent =
+      (d.getMonth()+1) + '月' + d.getDate() + '日 · ' + tags[0];
+    makeFog();
+  }
+
+  document.getElementById('windowNext').addEventListener('click',()=>{
+    wheel++;
+    localStorage.setItem('grey-notes-wheel', wheel);
+    openWindow();
+  });
+
+  wheel = parseInt(localStorage.getItem('grey-notes-wheel') || '0', 10) || 0;
 </script>
 </body>
 </html>
