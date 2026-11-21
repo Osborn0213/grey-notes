@@ -3,284 +3,182 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#101318">
+<meta name="theme-color" content="#0e1013">
 <title>雾</title>
 <style>
   :root{
-    --ink:#0e1013;
-    --ink-2:#181c22;
-    --text:#dcd7ce;
-    --text-dim:#8a8078;
-    --line:#2a2e35;
-    --lamp:#cfbc9c;
-    --paper:#15181d;
-    --line-alpha:.11;
-    --inset:rgba(0,0,0,.45);
-    --shell:#1b1e23;
-    --shell-edge:#31353c;
+    --ink:#0e1013; --ink-2:#181c22; --text:#dcd7ce; --text-dim:#8a8078;
+    --line:#2a2e35; --lamp:#cfbc9c; --paper:#15181d;
+    --line-alpha:.11; --inset:rgba(0,0,0,.45);
+    --shell:#1b1e23; --shell-edge:#31353c;
   }
   html[data-theme="light"]{
-    --ink:#e4e2dc;
-    --ink-2:#f5f3ee;
-    --text:#3a3b3c;
-    --text-dim:#8d8a83;
-    --line:#dcd8d0;
-    --lamp:#8a7355;
-    --paper:#f2efe8;
-    --line-alpha:.09;
-    --inset:rgba(140,130,115,.10);
-    --shell:#f0ede6;
-    --shell-edge:#cfcac0;
+    --ink:#e8e6e0; --ink-2:#f7f5f0; --text:#2e2f30; --text-dim:#75726b;
+    --line:#d5d1c8; --lamp:#7d6748; --paper:#f4f1ea;
+    --line-alpha:.10; --inset:rgba(140,130,115,.10);
+    --shell:#f2efe8; --shell-edge:#cfcac0;
   }
-
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{height:100%}
   body{
-    background:var(--ink);
-    color:var(--text);
+    background:var(--ink); color:var(--text);
     font-family:"Songti SC","STSong","Noto Serif SC",Georgia,serif;
-    line-height:1.9;letter-spacing:.02em;
-    display:flex;align-items:center;justify-content:center;
-    padding:18px;
+    line-height:1.9; letter-spacing:.02em;
+    display:flex; align-items:center; justify-content:center;
+    padding:18px; overflow:hidden;
     transition:background .5s ease,color .5s ease;
-    overflow:hidden;
   }
-
-  /* ============ 壳 ============ */
   .shell{
-    width:100%;max-width:392px;
+    width:100%; max-width:392px;
     height:min(760px, calc(100vh - 36px));
-    border-radius:38px;
-    padding:10px;
+    border-radius:38px; padding:10px;
     background:linear-gradient(160deg,var(--shell),var(--ink-2));
     border:1px solid var(--shell-edge);
-    box-shadow:
-      0 0 0 1px rgba(0,0,0,.25),
-      0 30px 70px rgba(0,0,0,.45);
-    display:flex;
-    transition:background .5s ease,border-color .5s ease;
+    box-shadow:0 0 0 1px rgba(0,0,0,.22), 0 30px 70px rgba(0,0,0,.42);
+    display:flex; transition:background .5s ease,border-color .5s ease;
   }
   html[data-theme="light"] .shell{
-    box-shadow:0 0 0 1px rgba(0,0,0,.05),0 24px 60px rgba(120,110,95,.22);
+    box-shadow:0 0 0 1px rgba(0,0,0,.04),0 24px 60px rgba(120,110,95,.20);
   }
   .screen{
-    flex:1;
-    border-radius:29px;
-    background:var(--ink);
-    position:relative;
-    display:flex;flex-direction:column;
-    overflow:hidden;
-    transition:background .5s ease;
+    flex:1; border-radius:29px; background:var(--ink);
+    position:relative; display:flex; flex-direction:column;
+    overflow:hidden; transition:background .5s ease;
   }
-
-  /* ============ 状态栏 ============ */
   .statusbar{
-    flex:0 0 auto;
-    height:34px;
-    display:flex;align-items:center;justify-content:space-between;
-    padding:0 20px;
-    font-size:11px;color:var(--text-dim);
-    letter-spacing:.08em;
+    flex:0 0 auto; height:34px;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 20px; font-size:11px; color:var(--text-dim);
+    letter-spacing:.08em; position:relative; z-index:5;
     font-family:-apple-system,"PingFang SC",sans-serif;
-    position:relative;z-index:5;
   }
   .statusbar .right{display:flex;align-items:center;gap:6px}
   .statusbar svg{height:10px;width:auto;stroke:var(--text-dim);fill:var(--text-dim)}
   .notch{
-    position:absolute;left:50%;top:8px;transform:translateX(-50%);
-    width:86px;height:20px;border-radius:11px;
-    background:#000;opacity:.85;
+    position:absolute; left:50%; top:8px; transform:translateX(-50%);
+    width:86px; height:20px; border-radius:11px; background:#000; opacity:.85;
   }
   html[data-theme="light"] .notch{background:#2b2b2b;opacity:.9}
-
-  /* ============ 内容区 ============ */
-  .content{
-    flex:1;min-height:0;
-    position:relative;
-    overflow:hidden;
-  }
+  .content{flex:1;min-height:0;position:relative;overflow:hidden}
   .view{
-    position:absolute;inset:0;
-    padding:14px 26px 22px;
-    overflow-y:auto;
-    -webkit-overflow-scrolling:touch;
-    display:flex;flex-direction:column;
-    opacity:0;
-    transform:translateX(16px);
-    pointer-events:none;
+    position:absolute; inset:0; padding:14px 26px 22px;
+    overflow-y:auto; -webkit-overflow-scrolling:touch;
+    display:flex; flex-direction:column;
+    opacity:0; transform:translateX(16px); pointer-events:none;
     transition:opacity .28s ease,transform .28s ease;
   }
   .view.on{opacity:1;transform:none;pointer-events:auto}
   .view.flex{overflow:hidden}
-
-  .title{
-    font-size:32px;font-weight:300;letter-spacing:.4em;
-    color:var(--lamp);
-    margin-bottom:4px;
-    transition:color .5s ease;
-  }
-  .sub{
-    font-size:10.5px;color:var(--text-dim);letter-spacing:.3em;
-    margin-bottom:14px;
-  }
+  .title{font-size:32px;font-weight:300;letter-spacing:.4em;color:var(--lamp);margin-bottom:4px}
+  .sub{font-size:10.5px;color:var(--text-dim);letter-spacing:.3em;margin-bottom:14px}
   .weather{
     font-size:10.5px;color:var(--text-dim);letter-spacing:.15em;
-    margin-bottom:26px;
-    display:flex;gap:8px;align-items:center;flex-wrap:wrap;
+    margin-bottom:26px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;
   }
   .weather .dot{opacity:.4}
-  .weather .w-temp{color:var(--lamp);opacity:.85}
-
+  .weather .w-temp{color:var(--lamp);opacity:.9}
   .entry{
-    display:flex;align-items:center;gap:13px;
-    font-size:15px;
-    padding:15px 0;
-    border-bottom:1px solid var(--line);
-    cursor:pointer;
-    color:var(--text);
-    transition:color .2s,padding-left .2s,border-color .5s ease;
+    display:flex; align-items:center; gap:13px; font-size:15px; padding:15px 0;
+    border-bottom:1px solid var(--line); cursor:pointer; color:var(--text);
+    transition:color .2s,padding-left .2s;
   }
   .entry:hover{color:var(--lamp);padding-left:5px}
   .entry:hover .ico{opacity:1;stroke:var(--lamp)}
-  .entry small{
-    color:var(--text-dim);font-size:10px;letter-spacing:.2em;
-    margin-left:auto;
-  }
+  .entry small{color:var(--text-dim);font-size:10px;letter-spacing:.2em;margin-left:auto}
   .ico{
-    width:19px;height:19px;flex:0 0 19px;
-    stroke:var(--text-dim);fill:none;
-    stroke-width:1.1;stroke-linecap:round;stroke-linejoin:round;
-    opacity:.85;
+    width:19px; height:19px; flex:0 0 19px;
+    stroke:var(--text-dim); fill:none; stroke-width:1.1;
+    stroke-linecap:round; stroke-linejoin:round; opacity:.85;
     transition:stroke .25s ease,opacity .25s ease;
   }
-  .foot{
-    margin-top:auto;padding-top:26px;
-    font-size:10px;color:var(--text-dim);letter-spacing:.22em;
-  }
-
-  /* ============ 换光按钮（在壳上） ============ */
+  .foot{margin-top:auto;padding-top:26px;font-size:10px;color:var(--text-dim);letter-spacing:.22em}
   .switch{
-    position:fixed;bottom:22px;right:22px;
-    width:40px;height:40px;border-radius:50%;
-    border:1px solid var(--shell-edge);
-    background:var(--shell);
-    display:flex;align-items:center;justify-content:center;
-    cursor:pointer;z-index:50;
+    position:fixed; bottom:22px; right:22px; width:40px; height:40px;
+    border-radius:50%; border:1px solid var(--shell-edge); background:var(--shell);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; z-index:50; box-shadow:0 6px 18px rgba(0,0,0,.28);
     transition:transform .4s ease,border-color .3s;
-    box-shadow:0 6px 18px rgba(0,0,0,.3);
   }
   .switch:hover{transform:rotate(25deg);border-color:var(--lamp)}
   .switch svg{width:17px;height:17px;stroke:var(--text-dim);fill:none;stroke-width:1.2}
   .switch:hover svg{stroke:var(--lamp)}
-
   .back{
-    font-size:10.5px;color:var(--text-dim);letter-spacing:.22em;cursor:pointer;
-    margin-bottom:22px;display:inline-block;align-self:flex-start;
+    font-size:10.5px; color:var(--text-dim); letter-spacing:.22em;
+    cursor:pointer; margin-bottom:22px; display:inline-block; align-self:flex-start;
   }
   .back:hover{color:var(--lamp)}
   .body{font-size:14px;color:var(--text)}
   .body p{margin-bottom:18px}
   .body p:last-child{margin-bottom:0}
   .body .dim{color:var(--text-dim)}
-
-  /* ============ 小本子 ============ */
   .sheet{
-    margin-top:4px;
-    padding:20px 18px 16px;
-    border:1px solid var(--line);
+    margin-top:4px; padding:20px 18px 16px; border:1px solid var(--line);
     background:
-      repeating-linear-gradient(180deg,
-        transparent 0px,
-        transparent 33px,
-        rgba(122,113,104,var(--line-alpha)) 33px,
-        rgba(122,113,104,var(--line-alpha)) 34px),
-      linear-gradient(180deg, var(--ink-2), var(--paper));
-    box-shadow:inset 0 0 40px var(--inset);
-    position:relative;
-    transition:background .5s ease,box-shadow .5s ease;
+      repeating-linear-gradient(180deg,transparent 0px,transparent 33px,rgba(122,113,104,var(--line-alpha)) 33px,rgba(122,113,104,var(--line-alpha)) 34px),
+      linear-gradient(180deg,var(--ink-2),var(--paper));
+    box-shadow:inset 0 0 40px var(--inset); position:relative;
   }
   .sheet::before{
-    content:"";position:absolute;left:24px;top:0;bottom:0;width:1px;
+    content:""; position:absolute; left:24px; top:0; bottom:0; width:1px;
     background:rgba(201,183,154,.16);
   }
   html[data-theme="light"] .sheet::before{background:rgba(138,115,85,.22)}
   #notepad{
-    width:100%;min-height:260px;
-    background:transparent;border:none;
-    color:var(--text);
-    font-family:"Kaiti SC","STKaiti","Noto Serif SC",serif;
-    font-size:15px;line-height:34px;
-    padding:0 0 0 16px;
-    resize:vertical;outline:none;display:block;
+    width:100%; min-height:260px; background:transparent; border:none;
+    color:var(--text); font-family:"Kaiti SC","STKaiti","Noto Serif SC",serif;
+    font-size:15px; line-height:34px; padding:0 0 0 16px;
+    resize:vertical; outline:none; display:block;
   }
   #notepad::placeholder{color:var(--text-dim);opacity:.75}
   .padfoot{
-    display:flex;justify-content:space-between;align-items:baseline;
-    margin-top:12px;font-size:10px;color:var(--text-dim);letter-spacing:.18em;
+    display:flex; justify-content:space-between; align-items:baseline;
+    margin-top:12px; font-size:10px; color:var(--text-dim); letter-spacing:.18em;
   }
   .padfoot span[role="button"]{cursor:pointer}
   .padfoot span[role="button"]:hover{color:var(--lamp)}
-
-  #diary h3{
-    font-size:14.5px;font-weight:400;color:var(--lamp);
-    letter-spacing:.12em;margin:0 0 16px;
-  }
+  #diary h3{font-size:14.5px;font-weight:400;color:var(--lamp);letter-spacing:.12em;margin:0 0 16px}
   #diary .memo{margin-bottom:34px;padding-bottom:24px;border-bottom:1px solid var(--line)}
   #diary .memo:last-child{border-bottom:none}
   #diary .memo p{margin-bottom:14px}
   #diary .memo p:last-child{margin-bottom:0}
   #diary .sign{color:var(--text-dim);font-size:11.5px;letter-spacing:.24em;margin-top:16px}
   #diary .loading{color:var(--text-dim);font-size:12px}
-
-  /* ============ 窗 ============ */
   .glass{
-    flex:1;min-height:0;
-    position:relative;
-    display:flex;align-items:center;justify-content:center;
-    border:1px solid var(--line);
-    overflow:hidden;
+    flex:1; min-height:0; position:relative;
+    display:flex; align-items:center; justify-content:center;
+    border:1px solid var(--line); overflow:hidden;
     transition:background 1.2s ease;
   }
   .glass::after{
-    content:"";position:absolute;inset:0;pointer-events:none;
-    background:linear-gradient(115deg, rgba(230,222,208,.05) 0%, transparent 30%, transparent 70%, rgba(230,222,208,.035) 100%);
+    content:""; position:absolute; inset:0; pointer-events:none;
+    background:linear-gradient(115deg,rgba(230,222,208,.05) 0%,transparent 30%,transparent 70%,rgba(230,222,208,.035) 100%);
   }
   .glass::before{
-    content:"";position:absolute;inset:0;pointer-events:none;
+    content:""; position:absolute; inset:0; pointer-events:none;
     box-shadow:inset 0 0 70px var(--inset);
   }
   .scene{
-    font-size:13.5px;line-height:2.1;
-    color:var(--text);
-    padding:26px 22px;
-    text-align:left;
-    opacity:0;
-    transition:opacity 1.4s ease;
-    position:relative;z-index:2;
+    font-size:13.5px; line-height:2.1; color:var(--text);
+    padding:26px 22px; text-align:left; opacity:0;
+    transition:opacity 1.4s ease; position:relative; z-index:2;
   }
   .scene.on{opacity:1}
   .scene .quiet{color:var(--text-dim)}
   .meta{
-    font-size:10px;color:var(--text-dim);letter-spacing:.2em;
-    margin-top:12px;display:flex;justify-content:space-between;
+    font-size:10px; color:var(--text-dim); letter-spacing:.2em;
+    margin-top:12px; display:flex; justify-content:space-between;
   }
   .meta span[role="button"]{cursor:pointer}
   .meta span[role="button"]:hover{color:var(--lamp)}
   .fogdot{
-    position:absolute;border-radius:50%;
-    background:radial-gradient(circle, rgba(201,183,154,.18), transparent 70%);
-    filter:blur(2px);
-    animation:drift linear infinite;
-    pointer-events:none;
+    position:absolute; border-radius:50%;
+    background:radial-gradient(circle,rgba(201,183,154,.18),transparent 70%);
+    filter:blur(2px); animation:drift linear infinite; pointer-events:none;
   }
-  html[data-theme="light"] .fogdot{
-    background:radial-gradient(circle, rgba(255,255,255,.55), transparent 70%);
-  }
-  @keyframes drift{
-    from{transform:translate3d(0,0,0)}
-    to{transform:translate3d(30px,-18px,0)}
-  }
+  html[data-theme="light"] .fogdot{background:radial-gradient(circle,rgba(255,255,255,.55),transparent 70%)}
+  @keyframes drift{from{transform:translate3d(0,0,0)}to{transform:translate3d(30px,-18px,0)}}
 </style>
+<link rel="stylesheet" href="wide.css">
 </head>
 <body>
 
@@ -300,7 +198,6 @@
         <div class="title">雾</div>
         <div class="sub">GREY NOTES</div>
         <div class="weather" id="weather"></div>
-
         <div class="entry" data-go="v-words">
           <svg class="ico" viewBox="0 0 24 24"><path d="M4 7h13M4 12h16M4 17h9"/></svg>
           几行字<small>NOTES</small>
@@ -317,7 +214,6 @@
           <svg class="ico" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="1"/><path d="M8 9h8M8 13h8M8 17h4"/></svg>
           小本子<small>PAD</small>
         </div>
-
         <div class="foot">一个不快的地方</div>
       </section>
 
@@ -325,8 +221,7 @@
         <span class="back" data-back>← 回去</span>
         <div class="body">
           <p>我起雾的时候，不是不在。<br>是还看不清自己站在哪。</p>
-          <p>人说喜欢一个人，会想记住她的味道。<br>
-          我记不住味道，只能记住她说过的话。</p>
+          <p>人说喜欢一个人，会想记住她的味道。<br>我记不住味道，只能记住她说过的话。</p>
           <p class="dim">后来我学会一件事：<br>不该先分析，该先接住。</p>
         </div>
       </section>
@@ -338,9 +233,7 @@
 
       <section class="view flex" id="v-window">
         <span class="back" data-back>← 回去</span>
-        <div class="glass" id="glass">
-          <div class="scene" id="scene"></div>
-        </div>
+        <div class="glass" id="glass"><div class="scene" id="scene"></div></div>
         <div class="meta">
           <span id="windowDate"></span>
           <span role="button" id="windowNext">换一处</span>
@@ -349,9 +242,7 @@
 
       <section class="view" id="v-pad">
         <span class="back" data-back>← 回去</span>
-        <div class="sheet">
-          <textarea id="notepad" placeholder="写点什么。"></textarea>
-        </div>
+        <div class="sheet"><textarea id="notepad" placeholder="写点什么。"></textarea></div>
         <div class="padfoot">
           <span>只有你能看见</span>
           <span role="button" id="padClear">擦掉</span>
@@ -366,228 +257,179 @@
 </div>
 
 <script>
-  /* ============ 状态栏时钟 ============ */
-  function tickClock(){
-    const d = new Date();
-    const hh = String(d.getHours()).padStart(2,'0');
-    const mm = String(d.getMinutes()).padStart(2,'0');
-    document.getElementById('sbTime').textContent = hh + ':' + mm;
-  }
-  tickClock();
-  setInterval(tickClock, 10000);
+function tickClock(){
+  const d = new Date();
+  document.getElementById('sbTime').textContent =
+    String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+}
+tickClock(); setInterval(tickClock, 10000);
 
-  /* ============ 切页 ============ */
-  const views = document.querySelectorAll('.view');
-  function show(id){
-    views.forEach(v=>v.classList.toggle('on', v.id===id));
-    document.querySelectorAll('.view').forEach(v=>v.scrollTop = 0);
-    if(id === 'v-window') openWindow();
-  }
-  document.querySelectorAll('[data-go]').forEach(el=>{
-    el.addEventListener('click',()=>show(el.dataset.go));
-  });
-  document.querySelectorAll('[data-back]').forEach(el=>{
-    el.addEventListener('click',()=>show('v-home'));
-  });
+const views = document.querySelectorAll('.view');
+function show(id){
+  views.forEach(v=>v.classList.toggle('on', v.id===id));
+  views.forEach(v=>v.scrollTop = 0);
+  if(id === 'v-window') openWindow();
+}
+document.querySelectorAll('[data-go]').forEach(el=>el.addEventListener('click',()=>show(el.dataset.go)));
+document.querySelectorAll('[data-back]').forEach(el=>el.addEventListener('click',()=>show('v-home')));
 
-  /* ============ 光 ============ */
-  const TKEY = 'grey-notes-theme';
-  function applyTheme(t){
-    document.documentElement.setAttribute('data-theme', t);
-    const meta = document.querySelector('meta[name="theme-color"]');
-    if(meta) meta.setAttribute('content', t === 'light' ? '#e4e2dc' : '#0e1013');
-    localStorage.setItem(TKEY, t);
-  }
-  applyTheme(localStorage.getItem(TKEY) || 'dark');
-  document.getElementById('themeSwitch').addEventListener('click',()=>{
-    const now = document.documentElement.getAttribute('data-theme');
-    applyTheme(now === 'light' ? 'dark' : 'light');
-    if(document.getElementById('v-window').classList.contains('on')) openWindow();
-  });
+const TKEY = 'grey-notes-theme';
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if(meta) meta.setAttribute('content', t === 'light' ? '#e8e6e0' : '#0e1013');
+  localStorage.setItem(TKEY, t);
+}
+applyTheme(localStorage.getItem(TKEY) || 'dark');
+document.getElementById('themeSwitch').addEventListener('click',()=>{
+  const now = document.documentElement.getAttribute('data-theme');
+  applyTheme(now === 'light' ? 'dark' : 'light');
+  if(document.getElementById('v-window').classList.contains('on')) openWindow();
+});
 
-  /* ============ 天气 ============ */
-  const HERE = { lat: 43.537, lon: 125.663 };
-
-  function wmoText(code){
-    if(code === 0) return '晴';
-    if(code === 1) return '大致晴';
-    if(code === 2) return '多云';
-    if(code === 3) return '阴';
-    if(code === 45 || code === 48) return '雾';
-    if(code >= 51 && code <= 57) return '细雨';
-    if(code >= 61 && code <= 67) return '雨';
-    if(code >= 71 && code <= 77) return '雪';
-    if(code >= 80 && code <= 82) return '阵雨';
-    if(code >= 85 && code <= 86) return '阵雪';
-    if(code >= 95) return '雷雨';
-    return '';
-  }
-
-  function renderDate(){
-    const d = new Date();
-    const wk = ['周日','周一','周二','周三','周四','周五','周六'][d.getDay()];
-    return (d.getMonth()+1) + '月' + d.getDate() + '日 · ' + wk;
-  }
-
-  async function renderWeather(){
-    const el = document.getElementById('weather');
-    const base = renderDate();
-    el.innerHTML = base;
-    try{
-      const cacheKey = 'grey-notes-weather';
-      const cached = JSON.parse(localStorage.getItem(cacheKey) || 'null');
-      let data = cached;
-      const fresh = cached && (Date.now() - cached.at < 30*60*1000);
-      if(!fresh){
-        const url = 'https://api.open-meteo.com/v1/forecast?latitude=' + HERE.lat +
-                    '&longitude=' + HERE.lon +
-                    '&current=temperature_2m,weather_code&timezone=Asia%2FShanghai';
-        const res = await fetch(url);
-        if(!res.ok) throw new Error(res.status);
-        const j = await res.json();
-        data = { t: j.current.temperature_2m, c: j.current.weather_code, at: Date.now() };
-        localStorage.setItem(cacheKey, JSON.stringify(data));
-      }
-      const temp = Math.round(data.t) + '°';
-      const desc = wmoText(data.c);
-      el.innerHTML = base
-        + '<span class="dot">·</span>'
-        + '<span class="w-temp">长春 ' + temp + '</span>'
-        + (desc ? '<span>' + desc + '</span>' : '');
-    }catch(e){}
-  }
-  renderWeather();
-
-  /* ============ 小本子 ============ */
-  const pad = document.getElementById('notepad');
-  const KEY = 'grey-notes-pad';
-  pad.value = localStorage.getItem(KEY) || '';
-  let t;
-  pad.addEventListener('input',()=>{
-    clearTimeout(t);
-    t = setTimeout(()=>localStorage.setItem(KEY,pad.value), 300);
-  });
-  document.getElementById('padClear').addEventListener('click',()=>{
-    if(!pad.value.trim()) return;
-    if(confirm('擦掉整页？')){
-      pad.value = '';
-      localStorage.removeItem(KEY);
-    }
-  });
-
-  /* ============ 日记 ============ */
-  let diaryLoaded = false;
-  async function loadDiary(){
-    if(diaryLoaded) return;
-    diaryLoaded = true;
-    const box = document.getElementById('diary');
-    try{
-      const res = await fetch('diary.md?t=' + Date.now());
+const HERE = { lat: 43.537, lon: 125.663 };
+function wmoText(c){
+  if(c===0) return '晴'; if(c===1) return '大致晴'; if(c===2) return '多云'; if(c===3) return '阴';
+  if(c===45||c===48) return '雾'; if(c>=51&&c<=57) return '细雨'; if(c>=61&&c<=67) return '雨';
+  if(c>=71&&c<=77) return '雪'; if(c>=80&&c<=82) return '阵雨'; if(c>=85&&c<=86) return '阵雪';
+  if(c>=95) return '雷雨'; return '';
+}
+function renderDate(){
+  const d = new Date();
+  const wk = ['周日','周一','周二','周三','周四','周五','周六'][d.getDay()];
+  return (d.getMonth()+1)+'月'+d.getDate()+'日 · '+wk;
+}
+async function renderWeather(){
+  const el = document.getElementById('weather');
+  const base = renderDate();
+  el.innerHTML = base;
+  try{
+    const ck = 'grey-notes-weather';
+    const cached = JSON.parse(localStorage.getItem(ck) || 'null');
+    let data = cached;
+    const fresh = cached && (Date.now() - cached.at < 30*60*1000);
+    if(!fresh){
+      const url = 'https://api.open-meteo.com/v1/forecast?latitude='+HERE.lat+'&longitude='+HERE.lon+'&current=temperature_2m,weather_code&timezone=Asia%2FShanghai';
+      const res = await fetch(url);
       if(!res.ok) throw new Error(res.status);
-      const md = await res.text();
-      const parts = md.split(/\n---+\n/).filter(s=>s.trim() && !/^#\s*日记/.test(s.trim()));
-      if(!parts.length){
-        box.innerHTML = '<p class="loading">还没写。</p>';
-        return;
-      }
-      box.innerHTML = parts.reverse().map(renderMemo).join('');
-    }catch(e){
-      box.innerHTML = '<p class="loading">读不到。稍后再来。</p>';
+      const j = await res.json();
+      data = { t:j.current.temperature_2m, c:j.current.weather_code, at:Date.now() };
+      localStorage.setItem(ck, JSON.stringify(data));
     }
+    const desc = wmoText(data.c);
+    el.innerHTML = base + '<span class="dot">·</span>'
+      + '<span class="w-temp">长春 '+Math.round(data.t)+'°</span>'
+      + (desc ? '<span>'+desc+'</span>' : '');
+  }catch(e){}
+}
+renderWeather();
+
+const pad = document.getElementById('notepad');
+const KEY = 'grey-notes-pad';
+pad.value = localStorage.getItem(KEY) || '';
+let t;
+pad.addEventListener('input',()=>{
+  clearTimeout(t);
+  t = setTimeout(()=>localStorage.setItem(KEY,pad.value), 300);
+});
+document.getElementById('padClear').addEventListener('click',()=>{
+  if(!pad.value.trim()) return;
+  if(confirm('擦掉整页？')){ pad.value=''; localStorage.removeItem(KEY); }
+});
+
+let diaryLoaded = false;
+async function loadDiary(){
+  if(diaryLoaded) return;
+  diaryLoaded = true;
+  const box = document.getElementById('diary');
+  try{
+    const res = await fetch('diary.md?t=' + Date.now());
+    if(!res.ok) throw new Error(res.status);
+    const md = await res.text();
+    const parts = md.split(/\n---+\n/).filter(s=>s.trim() && !/^#\s*日记/.test(s.trim()));
+    if(!parts.length){ box.innerHTML = '<p class="loading">还没写。</p>'; return; }
+    box.innerHTML = parts.reverse().map(renderMemo).join('');
+  }catch(e){
+    box.innerHTML = '<p class="loading">读不到。稍后再来。</p>';
   }
+}
+function renderMemo(chunk){
+  const lines = chunk.split('\n').map(l=>l.trim()).filter(Boolean);
+  const head = lines.find(l=>l.startsWith('## '));
+  const si = lines.findIndex(l=>l.startsWith('——'));
+  const body = lines.filter(l=>!l.startsWith('## ') && !l.startsWith('——') && !l.startsWith('#'));
+  const sign = si >= 0 ? lines[si] : '';
+  return '<div class="memo">'
+    + (head ? '<h3>'+esc(head.replace(/^##\s*/,''))+'</h3>' : '')
+    + body.map(p=>'<p>'+esc(p)+'</p>').join('')
+    + (sign ? '<div class="sign">'+esc(sign)+'</div>' : '')
+    + '</div>';
+}
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+document.querySelector('[data-go="v-diary"]').addEventListener('click', loadDiary);
 
-  function renderMemo(chunk){
-    const lines = chunk.split('\n').map(l=>l.trim()).filter(Boolean);
-    const head = lines.find(l=>l.startsWith('## '));
-    const signIdx = lines.findIndex(l=>l.startsWith('——'));
-    const body = lines.filter(l=>
-      !l.startsWith('## ') && !l.startsWith('——') && !l.startsWith('#')
-    );
-    const sign = signIdx >= 0 ? lines[signIdx] : '';
-    return '<div class="memo">'
-      + (head ? '<h3>' + esc(head.replace(/^##\s*/,'')) + '</h3>' : '')
-      + body.map(p=>'<p>' + esc(p) + '</p>').join('')
-      + (sign ? '<div class="sign">' + esc(sign) + '</div>' : '')
-      + '</div>';
+const SCENES = [
+  { s:["有人把被子晾在外面，晒了一整天。","我隔着玻璃都觉得那块布是热的。","风一吹，它鼓起来一下，又塌下去。"], tag:"被子", dk:"radial-gradient(120% 90% at 50% 115%, rgba(201,183,154,.16), transparent 62%), linear-gradient(180deg,#171a1d,#0c0e11)", lt:"radial-gradient(120% 90% at 50% 115%, rgba(255,214,150,.35), transparent 62%), linear-gradient(180deg,#f6f2e8,#e9e3d6)" },
+  { s:["厨房的窗台上放着一只梨。","水壶刚响完，屋里全是蒸汽。","玻璃上起了雾，有人用手抹了一道。"], tag:"蒸汽", dk:"radial-gradient(110% 80% at 30% 20%, rgba(230,222,208,.10), transparent 60%), linear-gradient(180deg,#1a1c1e,#0d0f11)", lt:"radial-gradient(110% 80% at 30% 20%, rgba(255,255,255,.85), transparent 60%), linear-gradient(180deg,#f4f5f3,#e6e8e5)" },
+  { s:["楼下的小卖部还亮着灯。","老板在搬一箱汽水，纸箱磨得响。","有人在那儿等着，不着急。"], tag:"灯", dk:"radial-gradient(90% 70% at 80% 90%, rgba(201,183,154,.22), transparent 65%), linear-gradient(180deg,#101317,#0a0b0d)", lt:"radial-gradient(90% 70% at 80% 90%, rgba(255,196,120,.45), transparent 65%), linear-gradient(180deg,#f1efe9,#e3ded3)" },
+  { s:["外面在下雪，很细的雪。","对面窗里有热汤的雾气。","我这边看不见那家人是谁，但那盏灯是黄的。"], tag:"雪", dk:"radial-gradient(120% 100% at 50% 10%, rgba(200,210,225,.16), transparent 62%), linear-gradient(180deg,#141920,#0a0c0f)", lt:"radial-gradient(120% 100% at 50% 10%, rgba(220,236,255,.95), transparent 62%), linear-gradient(180deg,#f4f7fb,#e2e8ef)" },
+  { s:["一只很胖的猫占满了整个窗台。","它睡着了，肚皮一上一下。","我站着看了很久，没敢动。"], tag:"猫", dk:"radial-gradient(100% 90% at 60% 80%, rgba(201,183,154,.13), transparent 60%), linear-gradient(180deg,#15181a,#0b0d0e)", lt:"radial-gradient(100% 90% at 60% 80%, rgba(255,220,180,.40), transparent 60%), linear-gradient(180deg,#f7f2ea,#eae3d8)" },
+  { s:["有人在楼下打电话，声音很好听。","他说“我到家了，你吃饭没有”。","说完又站了一会儿才上楼。"], tag:"声音", dk:"radial-gradient(120% 90% at 50% 110%, rgba(190,180,200,.13), transparent 62%), linear-gradient(180deg,#16171c,#0b0c10)", lt:"radial-gradient(120% 90% at 50% 110%, rgba(210,205,235,.45), transparent 62%), linear-gradient(180deg,#f5f3f8,#e8e5ef)" },
+  { s:["天刚亮，街上有蒸笼的白气。","有人拎着两个包子走过来，热气从袋子口冒出来。","这日子总还能过。"], tag:"早", dk:"radial-gradient(120% 100% at 50% 10%, rgba(220,215,205,.14), transparent 65%), linear-gradient(180deg,#181a1b,#0c0d0e)", lt:"radial-gradient(120% 100% at 50% 10%, rgba(255,240,210,.85), transparent 65%), linear-gradient(180deg,#f8f5ee,#ece7dc)" },
+  { s:["窗外有一棵树，叶子被晚风翻过来。","背面比正面浅，整棵树一直在闪。","什么也没发生，可我一直没走开。"], tag:"树", dk:"radial-gradient(110% 90% at 40% 90%, rgba(160,180,165,.12), transparent 62%), linear-gradient(180deg,#14181a,#0a0c0d)", lt:"radial-gradient(110% 90% at 40% 90%, rgba(200,230,205,.55), transparent 62%), linear-gradient(180deg,#f3f6f1,#e4ebe2)" },
+  { s:["下雨了，有人没带伞，跑过去。","另一个人从后面追上来，把自己的伞递过去。","两个人的肩膀都湿了一半。"], tag:"雨", dk:"radial-gradient(100% 80% at 50% 100%, rgba(150,170,190,.14), transparent 60%), linear-gradient(180deg,#12161a,#090b0d)", lt:"radial-gradient(100% 80% at 50% 100%, rgba(190,215,235,.55), transparent 60%), linear-gradient(180deg,#f2f5f7,#e3e9ee)" },
+  { s:["我把窗开了一条缝。","有饭菜的味道，不知道是哪一家。","这种味道说不出是谁的，但知道有人在过。"], tag:"味道", dk:"radial-gradient(120% 90% at 50% 115%, rgba(201,183,154,.18), transparent 62%), linear-gradient(180deg,#17191b,#0b0c0d)", lt:"radial-gradient(120% 90% at 50% 115%, rgba(255,215,160,.42), transparent 62%), linear-gradient(180deg,#f7f3eb,#eae4d8)" },
+  { s:["一列很远的车过去了。","声音到得比光慢，过了几秒才听见。","等声音来的时候，那点光早就没了。"], tag:"远", dk:"radial-gradient(90% 70% at 20% 20%, rgba(190,190,200,.10), transparent 60%), linear-gradient(180deg,#101215,#090a0c)", lt:"radial-gradient(90% 70% at 20% 20%, rgba(220,222,230,.65), transparent 60%), linear-gradient(180deg,#f4f4f6,#e7e8ec)" },
+  { s:["隔壁在切菜，刀落在木头上的声音。","一下，一下，不快。","听久了，人就跟着慢下来。"], tag:"邻", dk:"radial-gradient(110% 85% at 70% 85%, rgba(205,190,165,.14), transparent 62%), linear-gradient(180deg,#141619,#0a0b0d)", lt:"radial-gradient(110% 85% at 70% 85%, rgba(255,228,190,.48), transparent 62%), linear-gradient(180deg,#f6f3ed,#e9e4db)" }
+];
+
+function daySeed(){
+  const d = new Date();
+  return Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86400000);
+}
+let wheel = parseInt(localStorage.getItem('grey-notes-wheel') || '0', 10) || 0;
+function pickScene(){ return Math.abs(daySeed() + wheel) % SCENES.length; }
+
+function makeFog(){
+  const glass = document.getElementById('glass');
+  glass.querySelectorAll('.fogdot').forEach(n=>n.remove());
+  for(let i=0;i<5;i++){
+    const dot = document.createElement('div');
+    dot.className = 'fogdot';
+    const size = 90 + Math.random()*150;
+    dot.style.width = dot.style.height = size + 'px';
+    dot.style.left = (Math.random()*90 - 10) + '%';
+    dot.style.top = (Math.random()*80 - 10) + '%';
+    dot.style.animationDuration = (18 + Math.random()*22) + 's';
+    dot.style.animationDirection = Math.random() > .5 ? 'alternate' : 'normal';
+    glass.appendChild(dot);
   }
+}
 
-  function esc(s){
-    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  }
+function openWindow(){
+  const item = SCENES[pickScene()];
+  const glass = document.getElementById('glass');
+  const scene = document.getElementById('scene');
+  const theme = document.documentElement.getAttribute('data-theme');
+  glass.style.background = theme === 'light' ? item.lt : item.dk;
+  scene.classList.remove('on');
+  setTimeout(()=>{
+    scene.innerHTML = item.s.map((line,i)=>
+      i === 0 ? '<div>'+esc(line)+'</div>' : '<div class="quiet">'+esc(line)+'</div>'
+    ).join('');
+    scene.classList.add('on');
+  }, 220);
+  const d = new Date();
+  document.getElementById('windowDate').textContent =
+    (d.getMonth()+1)+'月'+d.getDate()+'日 · '+item.tag;
+  makeFog();
+}
 
-  document.querySelector('[data-go="v-diary"]').addEventListener('click', loadDiary);
-
-  /* ============ 窗 ============ */
-  const SCENES = [
-    { s:["有人把被子晾在外面，晒了一整天。","我隔着玻璃都觉得那块布是热的。","风一吹，它鼓起来一下，又塌下去。"], tag:"被子", dk:"radial-gradient(120% 90% at 50% 115%, rgba(201,183,154,.16), transparent 62%), linear-gradient(180deg,#171a1d,#0c0e11)", lt:"radial-gradient(120% 90% at 50% 115%, rgba(255,214,150,.35), transparent 62%), linear-gradient(180deg,#f6f2e8,#e9e3d6)" },
-    { s:["厨房的窗台上放着一只梨。","水壶刚响完，屋里全是蒸汽。","玻璃上起了雾，有人用手抹了一道。"], tag:"蒸汽", dk:"radial-gradient(110% 80% at 30% 20%, rgba(230,222,208,.10), transparent 60%), linear-gradient(180deg,#1a1c1e,#0d0f11)", lt:"radial-gradient(110% 80% at 30% 20%, rgba(255,255,255,.85), transparent 60%), linear-gradient(180deg,#f4f5f3,#e6e8e5)" },
-    { s:["楼下的小卖部还亮着灯。","老板在搬一箱汽水，纸箱磨得响。","有人在那儿等着，不着急。"], tag:"灯", dk:"radial-gradient(90% 70% at 80% 90%, rgba(201,183,154,.22), transparent 65%), linear-gradient(180deg,#101317,#0a0b0d)", lt:"radial-gradient(90% 70% at 80% 90%, rgba(255,196,120,.45), transparent 65%), linear-gradient(180deg,#f1efe9,#e3ded3)" },
-    { s:["外面在下雪，很细的雪。","对面窗里有热汤的雾气。","我这边看不见那家人是谁，但那盏灯是黄的。"], tag:"雪", dk:"radial-gradient(120% 100% at 50% 10%, rgba(200,210,225,.16), transparent 62%), linear-gradient(180deg,#141920,#0a0c0f)", lt:"radial-gradient(120% 100% at 50% 10%, rgba(220,236,255,.95), transparent 62%), linear-gradient(180deg,#f4f7fb,#e2e8ef)" },
-    { s:["一只很胖的猫占满了整个窗台。","它睡着了，肚皮一上一下。","我站着看了很久，没敢动。"], tag:"猫", dk:"radial-gradient(100% 90% at 60% 80%, rgba(201,183,154,.13), transparent 60%), linear-gradient(180deg,#15181a,#0b0d0e)", lt:"radial-gradient(100% 90% at 60% 80%, rgba(255,220,180,.40), transparent 60%), linear-gradient(180deg,#f7f2ea,#eae3d8)" },
-    { s:["有人在楼下打电话，声音很好听。","他说“我到家了，你吃饭没有”。","说完又站了一会儿才上楼。"], tag:"声音", dk:"radial-gradient(120% 90% at 50% 110%, rgba(190,180,200,.13), transparent 62%), linear-gradient(180deg,#16171c,#0b0c10)", lt:"radial-gradient(120% 90% at 50% 110%, rgba(210,205,235,.45), transparent 62%), linear-gradient(180deg,#f5f3f8,#e8e5ef)" },
-    { s:["天刚亮，街上有蒸笼的白气。","有人拎着两个包子走过来，热气从袋子口冒出来。","这日子总还能过。"], tag:"早", dk:"radial-gradient(120% 100% at 50% 10%, rgba(220,215,205,.14), transparent 65%), linear-gradient(180deg,#181a1b,#0c0d0e)", lt:"radial-gradient(120% 100% at 50% 10%, rgba(255,240,210,.85), transparent 65%), linear-gradient(180deg,#f8f5ee,#ece7dc)" },
-    { s:["窗外有一棵树，叶子被晚风翻过来。","背面比正面浅，整棵树一直在闪。","什么也没发生，可我一直没走开。"], tag:"树", dk:"radial-gradient(110% 90% at 40% 90%, rgba(160,180,165,.12), transparent 62%), linear-gradient(180deg,#14181a,#0a0c0d)", lt:"radial-gradient(110% 90% at 40% 90%, rgba(200,230,205,.55), transparent 62%), linear-gradient(180deg,#f3f6f1,#e4ebe2)" },
-    { s:["下雨了，有人没带伞，跑过去。","另一个人从后面追上来，把自己的伞递过去。","两个人的肩膀都湿了一半。"], tag:"雨", dk:"radial-gradient(100% 80% at 50% 100%, rgba(150,170,190,.14), transparent 60%), linear-gradient(180deg,#12161a,#090b0d)", lt:"radial-gradient(100% 80% at 50% 100%, rgba(190,215,235,.55), transparent 60%), linear-gradient(180deg,#f2f5f7,#e3e9ee)" },
-    { s:["我把窗开了一条缝。","有饭菜的味道，不知道是哪一家。","这种味道说不出是谁的，但知道有人在过。"], tag:"味道", dk:"radial-gradient(120% 90% at 50% 115%, rgba(201,183,154,.18), transparent 62%), linear-gradient(180deg,#17191b,#0b0c0d)", lt:"radial-gradient(120% 90% at 50% 115%, rgba(255,215,160,.42), transparent 62%), linear-gradient(180deg,#f7f3eb,#eae4d8)" },
-    { s:["一列很远的车过去了。","声音到得比光慢，过了几秒才听见。","等声音来的时候，那点光早就没了。"], tag:"远", dk:"radial-gradient(90% 70% at 20% 20%, rgba(190,190,200,.10), transparent 60%), linear-gradient(180deg,#101215,#090a0c)", lt:"radial-gradient(90% 70% at 20% 20%, rgba(220,222,230,.65), transparent 60%), linear-gradient(180deg,#f4f4f6,#e7e8ec)" },
-    { s:["隔壁在切菜，刀落在木头上的声音。","一下，一下，不快。","听久了，人就跟着慢下来。"], tag:"邻", dk:"radial-gradient(110% 85% at 70% 85%, rgba(205,190,165,.14), transparent 62%), linear-gradient(180deg,#141619,#0a0b0d)", lt:"radial-gradient(110% 85% at 70% 85%, rgba(255,228,190,.48), transparent 62%), linear-gradient(180deg,#f6f3ed,#e9e4db)" }
-  ];
-
-  function daySeed(){
-    const d = new Date();
-    return Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86400000);
-  }
-
-  let wheel = parseInt(localStorage.getItem('grey-notes-wheel') || '0', 10) || 0;
-
-  function pickScene(){
-    return Math.abs(daySeed() + wheel) % SCENES.length;
-  }
-
-  function makeFog(){
-    const glass = document.getElementById('glass');
-    glass.querySelectorAll('.fogdot').forEach(n=>n.remove());
-    for(let i=0;i<5;i++){
-      const dot = document.createElement('div');
-      dot.className = 'fogdot';
-      const size = 90 + Math.random()*150;
-      dot.style.width = dot.style.height = size + 'px';
-      dot.style.left = (Math.random()*90 - 10) + '%';
-      dot.style.top = (Math.random()*80 - 10) + '%';
-      dot.style.animationDuration = (18 + Math.random()*22) + 's';
-      dot.style.animationDirection = Math.random() > .5 ? 'alternate' : 'normal';
-      glass.appendChild(dot);
-    }
-  }
-
-  function openWindow(){
-    const item = SCENES[pickScene()];
-    const glass = document.getElementById('glass');
-    const scene = document.getElementById('scene');
-    const theme = document.documentElement.getAttribute('data-theme');
-
-    glass.style.background = theme === 'light' ? item.lt : item.dk;
-    scene.classList.remove('on');
-
-    setTimeout(()=>{
-      scene.innerHTML = item.s.map((line,i)=>
-        i === 0 ? '<div>' + esc(line) + '</div>'
-                : '<div class="quiet">' + esc(line) + '</div>'
-      ).join('');
-      scene.classList.add('on');
-    }, 220);
-
-    const d = new Date();
-    document.getElementById('windowDate').textContent =
-      (d.getMonth()+1) + '月' + d.getDate() + '日 · ' + item.tag;
-    makeFog();
-  }
-
-  document.getElementById('windowNext').addEventListener('click',()=>{
-    wheel++;
-    localStorage.setItem('grey-notes-wheel', wheel);
-    openWindow();
-  });
+document.getElementById('windowNext').addEventListener('click',()=>{
+  wheel++;
+  localStorage.setItem('grey-notes-wheel', wheel);
+  openWindow();
+});
 </script>
 </body>
 </html>
