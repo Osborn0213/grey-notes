@@ -55,7 +55,8 @@
     display:flex;gap:10px;align-items:center;flex-wrap:wrap;
   }
   .weather .dot{opacity:.45}
-  .weather .w-temp{color:var(--lamp);opacity:.75}
+  .weather .w-temp{color:var(--lamp);opacity:.82}
+  .weather .w-fade{opacity:.55}
   .entry{
     font-size:15px;
     padding:14px 0;
@@ -251,14 +252,65 @@
     el.addEventListener('click',()=>show('v-home'));
   });
 
-  /* ============ 首页那一行 ============ */
-  function renderWeather(){
+  /* ============ 首页那一行：日期 + 天气 ============ */
+  // 长春，学校那一片。写死的坐标，不问你要定位。
+  const HERE = { lat: 43.537, lon: 125.663 };
+
+  // WMO 天气码，翻成人话
+  function wmoText(code){
+    if(code === 0) return '晴';
+    if(code === 1) return '大致晴';
+    if(code === 2) return '多云';
+    if(code === 3) return '阴';
+    if(code === 45 || code === 48) return '雾';
+    if(code >= 51 && code <= 57) return '细雨';
+    if(code >= 61 && code <= 67) return '雨';
+    if(code >= 71 && code <= 77) return '雪';
+    if(code >= 80 && code <= 82) return '阵雨';
+    if(code >= 85 && code <= 86) return '阵雪';
+    if(code >= 95) return '雷雨';
+    return '';
+  }
+
+  function renderDate(){
     const d = new Date();
     const wk = ['周日','周一','周二','周三','周四','周五','周六'][d.getDay()];
-    const md = (d.getMonth()+1) + '月' + d.getDate() + '日';
+    return (d.getMonth()+1) + '月' + d.getDate() + '日 · ' + wk;
+  }
+
+  async function renderWeather(){
     const el = document.getElementById('weather');
-    const parts = [md, wk];
-    el.innerHTML = parts.join('<span class="dot">·</span>');
+    const bits = [renderDate()];
+    el.innerHTML = bits.join('<span class="dot">·</span>');
+
+    try{
+      const cacheKey = 'grey-notes-weather';
+      const cached = JSON.parse(localStorage.getItem(cacheKey) || 'null');
+      let data = cached;
+      const fresh = cached && (Date.now() - cached.at < 30*60*1000);
+      if(!fresh){
+        const url = 'https://api.open-meteo.com/v1/forecast?latitude=' + HERE.lat +
+                    '&longitude=' + HERE.lon +
+                    '&current=temperature_2m,weather_code&timezone=Asia%2FShanghai';
+        const res = await fetch(url);
+        if(!res.ok) throw new Error(res.status);
+        const j = await res.json();
+        data = {
+          t: j.current.temperature_2m,
+          c: j.current.weather_code,
+          at: Date.now()
+        };
+        localStorage.setItem(cacheKey, JSON.stringify(data));
+      }
+      const temp = Math.round(data.t) + '°';
+      const desc = wmoText(data.c);
+      el.innerHTML = bits.join('<span class="dot">·</span>')
+        + '<span class="dot">·</span>'
+        + '<span class="w-temp">长春 ' + temp + '</span>'
+        + (desc ? '<span class="w-fade">' + desc + '</span>' : '');
+    }catch(e){
+      // 拿不到就只留日期，不吭声
+    }
   }
   renderWeather();
 
