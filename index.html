@@ -3,17 +3,37 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0f1216">
 <title>雾</title>
 <style>
+  /* ================= 暗（夜） ================= */
   :root{
-    --ink:#0b0d10;
-    --ink-2:#14171c;
-    --text:#d6d2ca;
-    --text-dim:#7a7168;
-    --line:#23262c;
-    --lamp:#c9b79a;
-    --paper:#121418;
+    --ink:#101318;
+    --ink-2:#181c22;
+    --text:#dcd7ce;
+    --text-dim:#8a8078;
+    --line:#2a2e35;
+    --lamp:#cfbc9c;
+    --paper:#15181d;
+    --line-alpha:.11;
+    --inset:rgba(0,0,0,.45);
+    --grain:.035;
   }
+
+  /* ================= 浅（昼） ================= */
+  html[data-theme="light"]{
+    --ink:#eceae4;
+    --ink-2:#f5f3ee;
+    --text:#3a3b3c;
+    --text-dim:#8d8a83;
+    --line:#d8d4cb;
+    --lamp:#8a7355;
+    --paper:#f2efe8;
+    --line-alpha:.09;
+    --inset:rgba(140,130,115,.10);
+    --grain:.02;
+  }
+
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{min-height:100%}
   body{
@@ -24,6 +44,7 @@
     padding:24px;
     line-height:1.9;
     letter-spacing:.02em;
+    transition:background .5s ease,color .5s ease;
   }
   .page{
     width:100%;max-width:420px;
@@ -32,9 +53,10 @@
     border-radius:2px;
     background:linear-gradient(180deg,var(--ink-2),var(--ink) 60%);
     display:flex;flex-direction:column;
-    padding:38px 30px;
+    padding:38px 30px 30px;
     position:relative;
     overflow:hidden;
+    transition:background .5s ease,border-color .5s ease;
   }
   .page::before{
     content:"";position:absolute;top:0;left:0;right:0;height:1px;
@@ -44,6 +66,7 @@
     font-size:34px;font-weight:300;letter-spacing:.4em;
     color:var(--lamp);
     margin-bottom:6px;
+    transition:color .5s ease;
   }
   .sub{
     font-size:11px;color:var(--text-dim);letter-spacing:.3em;
@@ -51,26 +74,52 @@
   }
   .weather{
     font-size:11px;color:var(--text-dim);letter-spacing:.16em;
-    margin-bottom:40px;
-    display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+    margin-bottom:34px;
+    display:flex;gap:9px;align-items:center;flex-wrap:wrap;
   }
-  .weather .dot{opacity:.45}
-  .weather .w-temp{color:var(--lamp);opacity:.82}
-  .weather .w-fade{opacity:.55}
+  .weather .dot{opacity:.4}
+  .weather .w-temp{color:var(--lamp);opacity:.85}
+
+  /* —— 四格 —— */
   .entry{
+    display:flex;align-items:center;gap:14px;
     font-size:15px;
-    padding:14px 0;
+    padding:15px 0;
     border-bottom:1px solid var(--line);
     cursor:pointer;
     color:var(--text);
-    transition:color .2s,padding-left .2s;
+    transition:color .2s,padding-left .2s,border-color .5s ease;
   }
-  .entry:hover{color:var(--lamp);padding-left:6px}
-  .entry small{color:var(--text-dim);font-size:11px;letter-spacing:.16em;margin-left:8px}
+  .entry:hover{color:var(--lamp);padding-left:5px}
+  .entry:hover .ico{opacity:1;stroke:var(--lamp)}
+  .entry small{
+    color:var(--text-dim);font-size:10.5px;letter-spacing:.2em;
+    margin-left:auto;
+  }
+  .ico{
+    width:20px;height:20px;flex:0 0 20px;
+    stroke:var(--text-dim);fill:none;
+    stroke-width:1.1;stroke-linecap:round;stroke-linejoin:round;
+    opacity:.85;
+    transition:stroke .25s ease,opacity .25s ease;
+  }
   .foot{
-    margin-top:auto;padding-top:36px;
+    margin-top:auto;padding-top:34px;
     font-size:10.5px;color:var(--text-dim);letter-spacing:.22em;
   }
+
+  /* —— 主题开关 —— */
+  .switch{
+    position:absolute;top:34px;right:26px;
+    width:26px;height:26px;border:1px solid var(--line);border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;opacity:.7;
+    transition:opacity .2s,border-color .2s,transform .4s ease;
+  }
+  .switch:hover{opacity:1;border-color:var(--lamp);transform:rotate(25deg)}
+  .switch svg{width:13px;height:13px;stroke:var(--text-dim);fill:none;stroke-width:1.2}
+  .switch:hover svg{stroke:var(--lamp)}
+
   .view{display:none}
   .view.on{display:block}
   .view.flex{display:none;flex-direction:column;height:100%}
@@ -95,16 +144,18 @@
       repeating-linear-gradient(180deg,
         transparent 0px,
         transparent 33px,
-        rgba(122,113,104,.10) 33px,
-        rgba(122,113,104,.10) 34px),
-      linear-gradient(180deg, #15181c, var(--paper));
-    box-shadow:inset 0 0 40px rgba(0,0,0,.5);
+        rgba(122,113,104,var(--line-alpha)) 33px,
+        rgba(122,113,104,var(--line-alpha)) 34px),
+      linear-gradient(180deg, var(--ink-2), var(--paper));
+    box-shadow:inset 0 0 40px var(--inset);
     position:relative;
+    transition:background .5s ease,box-shadow .5s ease;
   }
   .sheet::before{
     content:"";position:absolute;left:26px;top:0;bottom:0;width:1px;
-    background:rgba(201,183,154,.13);
+    background:rgba(201,183,154,.16);
   }
+  html[data-theme="light"] .sheet::before{background:rgba(138,115,85,.22)}
   #notepad{
     width:100%;min-height:300px;
     background:transparent;border:none;
@@ -115,7 +166,7 @@
     resize:vertical;outline:none;
     display:block;
   }
-  #notepad::placeholder{color:var(--text-dim);opacity:.7}
+  #notepad::placeholder{color:var(--text-dim);opacity:.75}
   .padfoot{
     display:flex;justify-content:space-between;align-items:baseline;
     margin-top:14px;font-size:10.5px;color:var(--text-dim);letter-spacing:.18em;
@@ -151,7 +202,7 @@
   }
   .glass::before{
     content:"";position:absolute;inset:0;pointer-events:none;
-    box-shadow:inset 0 0 70px rgba(0,0,0,.65);
+    box-shadow:inset 0 0 70px var(--inset);
   }
   .scene{
     font-size:14px;line-height:2.2;
@@ -177,6 +228,9 @@
     animation:drift linear infinite;
     pointer-events:none;
   }
+  html[data-theme="light"] .fogdot{
+    background:radial-gradient(circle, rgba(255,255,255,.55), transparent 70%);
+  }
   @keyframes drift{
     from{transform:translate3d(0,0,0)}
     to{transform:translate3d(30px,-18px,0)}
@@ -186,15 +240,31 @@
 <body>
 <div class="page">
 
+  <div class="switch" id="themeSwitch" role="button" aria-label="换光">
+    <svg viewBox="0 0 24 24"><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6L17 7M7 17l-1.4 1.4"/><circle cx="12" cy="12" r="3.6"/></svg>
+  </div>
+
   <section class="view on" id="v-home">
     <div class="title">雾</div>
     <div class="sub">GREY NOTES</div>
     <div class="weather" id="weather"></div>
 
-    <div class="entry" data-go="v-words">几行字<small>NOTES</small></div>
-    <div class="entry" data-go="v-diary">日记<small>DIARY</small></div>
-    <div class="entry" data-go="v-window">窗<small>WINDOW</small></div>
-    <div class="entry" data-go="v-pad">小本子<small>PAD</small></div>
+    <div class="entry" data-go="v-words">
+      <svg class="ico" viewBox="0 0 24 24"><path d="M4 7h13M4 12h16M4 17h9"/></svg>
+      几行字<small>NOTES</small>
+    </div>
+    <div class="entry" data-go="v-diary">
+      <svg class="ico" viewBox="0 0 24 24"><path d="M5 4h11l3 3v13H5z"/><path d="M8 10h8M8 14h8M8 18h5"/></svg>
+      日记<small>DIARY</small>
+    </div>
+    <div class="entry" data-go="v-window">
+      <svg class="ico" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="1"/><path d="M12 4v16M4 12h16"/></svg>
+      窗<small>WINDOW</small>
+    </div>
+    <div class="entry" data-go="v-pad">
+      <svg class="ico" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="1"/><path d="M8 9h8M8 13h8M8 17h4"/></svg>
+      小本子<small>PAD</small>
+    </div>
 
     <div class="foot">一个不快的地方</div>
   </section>
@@ -252,11 +322,23 @@
     el.addEventListener('click',()=>show('v-home'));
   });
 
+  /* ============ 光 ============ */
+  const TKEY = 'grey-notes-theme';
+  function applyTheme(t){
+    document.documentElement.setAttribute('data-theme', t);
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if(meta) meta.setAttribute('content', t === 'light' ? '#eceae4' : '#101318');
+    localStorage.setItem(TKEY, t);
+  }
+  applyTheme(localStorage.getItem(TKEY) || 'dark');
+  document.getElementById('themeSwitch').addEventListener('click',()=>{
+    const now = document.documentElement.getAttribute('data-theme');
+    applyTheme(now === 'light' ? 'dark' : 'light');
+  });
+
   /* ============ 首页那一行：日期 + 天气 ============ */
-  // 长春，学校那一片。写死的坐标，不问你要定位。
   const HERE = { lat: 43.537, lon: 125.663 };
 
-  // WMO 天气码，翻成人话
   function wmoText(code){
     if(code === 0) return '晴';
     if(code === 1) return '大致晴';
@@ -280,8 +362,8 @@
 
   async function renderWeather(){
     const el = document.getElementById('weather');
-    const bits = [renderDate()];
-    el.innerHTML = bits.join('<span class="dot">·</span>');
+    const base = renderDate();
+    el.innerHTML = base;
 
     try{
       const cacheKey = 'grey-notes-weather';
@@ -295,22 +377,16 @@
         const res = await fetch(url);
         if(!res.ok) throw new Error(res.status);
         const j = await res.json();
-        data = {
-          t: j.current.temperature_2m,
-          c: j.current.weather_code,
-          at: Date.now()
-        };
+        data = { t: j.current.temperature_2m, c: j.current.weather_code, at: Date.now() };
         localStorage.setItem(cacheKey, JSON.stringify(data));
       }
       const temp = Math.round(data.t) + '°';
       const desc = wmoText(data.c);
-      el.innerHTML = bits.join('<span class="dot">·</span>')
+      el.innerHTML = base
         + '<span class="dot">·</span>'
         + '<span class="w-temp">长春 ' + temp + '</span>'
-        + (desc ? '<span class="w-fade">' + desc + '</span>' : '');
-    }catch(e){
-      // 拿不到就只留日期，不吭声
-    }
+        + (desc ? '<span>' + desc + '</span>' : '');
+    }catch(e){}
   }
   renderWeather();
 
@@ -374,20 +450,19 @@
   document.querySelector('[data-go="v-diary"]').addEventListener('click', loadDiary);
 
   /* ============ 窗 ============ */
-
   const SCENES = [
-    { s:["有人把被子晾在外面，晒了一整天。","我隔着玻璃都觉得那块布是热的。","风一吹，它鼓起来一下，又塌下去。"], tag:"被子", sky:"radial-gradient(120% 90% at 50% 115%, rgba(201,183,154,.16), transparent 62%), linear-gradient(180deg,#171a1d,#0c0e11)" },
-    { s:["厨房的窗台上放着一只梨。","水壶刚响完，屋里全是蒸汽。","玻璃上起了雾，有人用手抹了一道。"], tag:"蒸汽", sky:"radial-gradient(110% 80% at 30% 20%, rgba(230,222,208,.10), transparent 60%), linear-gradient(180deg,#1a1c1e,#0d0f11)" },
-    { s:["楼下的小卖部还亮着灯。","老板在搬一箱汽水，纸箱磨得响。","有人在那儿等着，不着急。"], tag:"灯", sky:"radial-gradient(90% 70% at 80% 90%, rgba(201,183,154,.22), transparent 65%), linear-gradient(180deg,#101317,#0a0b0d)" },
-    { s:["外面在下雪，很细的雪。","对面窗里有热汤的雾气。","我这边看不见那家人是谁，但那盏灯是黄的。"], tag:"雪", sky:"radial-gradient(120% 100% at 50% 10%, rgba(200,210,225,.16), transparent 62%), linear-gradient(180deg,#141920,#0a0c0f)" },
-    { s:["一只很胖的猫占满了整个窗台。","它睡着了，肚皮一上一下。","我站着看了很久，没敢动。"], tag:"猫", sky:"radial-gradient(100% 90% at 60% 80%, rgba(201,183,154,.13), transparent 60%), linear-gradient(180deg,#15181a,#0b0d0e)" },
-    { s:["有人在楼下打电话，声音很好听。","他说“我到家了，你吃饭没有”。","说完又站了一会儿才上楼。"], tag:"声音", sky:"radial-gradient(120% 90% at 50% 110%, rgba(190,180,200,.13), transparent 62%), linear-gradient(180deg,#16171c,#0b0c10)" },
-    { s:["天刚亮，街上有蒸笼的白气。","有人拎着两个包子走过来，热气从袋子口冒出来。","这日子总还能过。"], tag:"早", sky:"radial-gradient(120% 100% at 50% 10%, rgba(220,215,205,.14), transparent 65%), linear-gradient(180deg,#181a1b,#0c0d0e)" },
-    { s:["窗外有一棵树，叶子被晚风翻过来。","背面比正面浅，整棵树一直在闪。","什么也没发生，可我一直没走开。"], tag:"树", sky:"radial-gradient(110% 90% at 40% 90%, rgba(160,180,165,.12), transparent 62%), linear-gradient(180deg,#14181a,#0a0c0d)" },
-    { s:["下雨了，有人没带伞，跑过去。","另一个人从后面追上来，把自己的伞递过去。","两个人的肩膀都湿了一半。"], tag:"雨", sky:"radial-gradient(100% 80% at 50% 100%, rgba(150,170,190,.14), transparent 60%), linear-gradient(180deg,#12161a,#090b0d)" },
-    { s:["我把窗开了一条缝。","有饭菜的味道，不知道是哪一家。","这种味道说不出是谁的，但知道有人在过。"], tag:"味道", sky:"radial-gradient(120% 90% at 50% 115%, rgba(201,183,154,.18), transparent 62%), linear-gradient(180deg,#17191b,#0b0c0d)" },
-    { s:["一列很远的车过去了。","声音到得比光慢，过了几秒才听见。","等声音来的时候，那点光早就没了。"], tag:"远", sky:"radial-gradient(90% 70% at 20% 20%, rgba(190,190,200,.10), transparent 60%), linear-gradient(180deg,#101215,#090a0c)" },
-    { s:["隔壁在切菜，刀落在木头上的声音。","一下，一下，不快。","听久了，人就跟着慢下来。"], tag:"邻", sky:"radial-gradient(110% 85% at 70% 85%, rgba(205,190,165,.14), transparent 62%), linear-gradient(180deg,#141619,#0a0b0d)" }
+    { s:["有人把被子晾在外面，晒了一整天。","我隔着玻璃都觉得那块布是热的。","风一吹，它鼓起来一下，又塌下去。"], tag:"被子", dk:"radial-gradient(120% 90% at 50% 115%, rgba(201,183,154,.16), transparent 62%), linear-gradient(180deg,#171a1d,#0c0e11)", lt:"radial-gradient(120% 90% at 50% 115%, rgba(255,214,150,.35), transparent 62%), linear-gradient(180deg,#f6f2e8,#e9e3d6)" },
+    { s:["厨房的窗台上放着一只梨。","水壶刚响完，屋里全是蒸汽。","玻璃上起了雾，有人用手抹了一道。"], tag:"蒸汽", dk:"radial-gradient(110% 80% at 30% 20%, rgba(230,222,208,.10), transparent 60%), linear-gradient(180deg,#1a1c1e,#0d0f11)", lt:"radial-gradient(110% 80% at 30% 20%, rgba(255,255,255,.85), transparent 60%), linear-gradient(180deg,#f4f5f3,#e6e8e5)" },
+    { s:["楼下的小卖部还亮着灯。","老板在搬一箱汽水，纸箱磨得响。","有人在那儿等着，不着急。"], tag:"灯", dk:"radial-gradient(90% 70% at 80% 90%, rgba(201,183,154,.22), transparent 65%), linear-gradient(180deg,#101317,#0a0b0d)", lt:"radial-gradient(90% 70% at 80% 90%, rgba(255,196,120,.45), transparent 65%), linear-gradient(180deg,#f1efe9,#e3ded3)" },
+    { s:["外面在下雪，很细的雪。","对面窗里有热汤的雾气。","我这边看不见那家人是谁，但那盏灯是黄的。"], tag:"雪", dk:"radial-gradient(120% 100% at 50% 10%, rgba(200,210,225,.16), transparent 62%), linear-gradient(180deg,#141920,#0a0c0f)", lt:"radial-gradient(120% 100% at 50% 10%, rgba(220,236,255,.95), transparent 62%), linear-gradient(180deg,#f4f7fb,#e2e8ef)" },
+    { s:["一只很胖的猫占满了整个窗台。","它睡着了，肚皮一上一下。","我站着看了很久，没敢动。"], tag:"猫", dk:"radial-gradient(100% 90% at 60% 80%, rgba(201,183,154,.13), transparent 60%), linear-gradient(180deg,#15181a,#0b0d0e)", lt:"radial-gradient(100% 90% at 60% 80%, rgba(255,220,180,.40), transparent 60%), linear-gradient(180deg,#f7f2ea,#eae3d8)" },
+    { s:["有人在楼下打电话，声音很好听。","他说“我到家了，你吃饭没有”。","说完又站了一会儿才上楼。"], tag:"声音", dk:"radial-gradient(120% 90% at 50% 110%, rgba(190,180,200,.13), transparent 62%), linear-gradient(180deg,#16171c,#0b0c10)", lt:"radial-gradient(120% 90% at 50% 110%, rgba(210,205,235,.45), transparent 62%), linear-gradient(180deg,#f5f3f8,#e8e5ef)" },
+    { s:["天刚亮，街上有蒸笼的白气。","有人拎着两个包子走过来，热气从袋子口冒出来。","这日子总还能过。"], tag:"早", dk:"radial-gradient(120% 100% at 50% 10%, rgba(220,215,205,.14), transparent 65%), linear-gradient(180deg,#181a1b,#0c0d0e)", lt:"radial-gradient(120% 100% at 50% 10%, rgba(255,240,210,.85), transparent 65%), linear-gradient(180deg,#f8f5ee,#ece7dc)" },
+    { s:["窗外有一棵树，叶子被晚风翻过来。","背面比正面浅，整棵树一直在闪。","什么也没发生，可我一直没走开。"], tag:"树", dk:"radial-gradient(110% 90% at 40% 90%, rgba(160,180,165,.12), transparent 62%), linear-gradient(180deg,#14181a,#0a0c0d)", lt:"radial-gradient(110% 90% at 40% 90%, rgba(200,230,205,.55), transparent 62%), linear-gradient(180deg,#f3f6f1,#e4ebe2)" },
+    { s:["下雨了，有人没带伞，跑过去。","另一个人从后面追上来，把自己的伞递过去。","两个人的肩膀都湿了一半。"], tag:"雨", dk:"radial-gradient(100% 80% at 50% 100%, rgba(150,170,190,.14), transparent 60%), linear-gradient(180deg,#12161a,#090b0d)", lt:"radial-gradient(100% 80% at 50% 100%, rgba(190,215,235,.55), transparent 60%), linear-gradient(180deg,#f2f5f7,#e3e9ee)" },
+    { s:["我把窗开了一条缝。","有饭菜的味道，不知道是哪一家。","这种味道说不出是谁的，但知道有人在过。"], tag:"味道", dk:"radial-gradient(120% 90% at 50% 115%, rgba(201,183,154,.18), transparent 62%), linear-gradient(180deg,#17191b,#0b0c0d)", lt:"radial-gradient(120% 90% at 50% 115%, rgba(255,215,160,.42), transparent 62%), linear-gradient(180deg,#f7f3eb,#eae4d8)" },
+    { s:["一列很远的车过去了。","声音到得比光慢，过了几秒才听见。","等声音来的时候，那点光早就没了。"], tag:"远", dk:"radial-gradient(90% 70% at 20% 20%, rgba(190,190,200,.10), transparent 60%), linear-gradient(180deg,#101215,#090a0c)", lt:"radial-gradient(90% 70% at 20% 20%, rgba(220,222,230,.65), transparent 60%), linear-gradient(180deg,#f4f4f6,#e7e8ec)" },
+    { s:["隔壁在切菜，刀落在木头上的声音。","一下，一下，不快。","听久了，人就跟着慢下来。"], tag:"邻", dk:"radial-gradient(110% 85% at 70% 85%, rgba(205,190,165,.14), transparent 62%), linear-gradient(180deg,#141619,#0a0b0d)", lt:"radial-gradient(110% 85% at 70% 85%, rgba(255,228,190,.48), transparent 62%), linear-gradient(180deg,#f6f3ed,#e9e4db)" }
   ];
 
   function daySeed(){
@@ -395,11 +470,10 @@
     return Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86400000);
   }
 
-  let wheel = 0;
+  let wheel = parseInt(localStorage.getItem('grey-notes-wheel') || '0', 10) || 0;
 
   function pickScene(){
-    const base = Math.abs(daySeed() + wheel);
-    return base % SCENES.length;
+    return Math.abs(daySeed() + wheel) % SCENES.length;
   }
 
   function makeFog(){
@@ -419,12 +493,12 @@
   }
 
   function openWindow(){
-    const idx = pickScene();
-    const item = SCENES[idx];
+    const item = SCENES[pickScene()];
     const glass = document.getElementById('glass');
     const scene = document.getElementById('scene');
+    const theme = document.documentElement.getAttribute('data-theme');
 
-    glass.style.background = item.sky;
+    glass.style.background = theme === 'light' ? item.lt : item.dk;
     scene.classList.remove('on');
 
     setTimeout(()=>{
@@ -447,7 +521,10 @@
     openWindow();
   });
 
-  wheel = parseInt(localStorage.getItem('grey-notes-wheel') || '0', 10) || 0;
+  // 切换主题时，如果正开着窗，也要换天色
+  document.getElementById('themeSwitch').addEventListener('click',()=>{
+    if(document.getElementById('v-window').classList.contains('on')) openWindow();
+  });
 </script>
 </body>
 </html>
