@@ -12,6 +12,7 @@
     --text-dim:#7a7168;
     --line:#23262c;
     --lamp:#c9b79a;
+    --paper:#121418;
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{min-height:100%}
@@ -46,8 +47,15 @@
   }
   .sub{
     font-size:11px;color:var(--text-dim);letter-spacing:.3em;
-    margin-bottom:44px;
+    margin-bottom:16px;
   }
+  .weather{
+    font-size:11px;color:var(--text-dim);letter-spacing:.16em;
+    margin-bottom:40px;
+    display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+  }
+  .weather .dot{opacity:.45}
+  .weather .w-temp{color:var(--lamp);opacity:.75}
   .entry{
     font-size:15px;
     padding:14px 0;
@@ -75,14 +83,45 @@
   .body p{margin-bottom:20px}
   .body p:last-child{margin-bottom:0}
   .body .dim{color:var(--text-dim)}
-  #notepad{
-    width:100%;min-height:180px;background:transparent;border:none;
-    border-top:1px solid var(--line);border-bottom:1px solid var(--line);
-    color:var(--text);font-family:inherit;font-size:14px;line-height:1.9;
-    padding:16px 0;resize:none;outline:none;
+
+  /* —— 小本子：纸 —— */
+  .sheet{
+    margin-top:6px;
+    padding:22px 20px 18px;
+    border:1px solid var(--line);
+    border-radius:1px;
+    background:
+      repeating-linear-gradient(180deg,
+        transparent 0px,
+        transparent 33px,
+        rgba(122,113,104,.10) 33px,
+        rgba(122,113,104,.10) 34px),
+      linear-gradient(180deg, #15181c, var(--paper));
+    box-shadow:inset 0 0 40px rgba(0,0,0,.5);
+    position:relative;
   }
-  #notepad::placeholder{color:var(--text-dim)}
-  .hint{font-size:10.5px;color:var(--text-dim);letter-spacing:.18em;margin-top:12px}
+  .sheet::before{
+    content:"";position:absolute;left:26px;top:0;bottom:0;width:1px;
+    background:rgba(201,183,154,.13);
+  }
+  #notepad{
+    width:100%;min-height:300px;
+    background:transparent;border:none;
+    color:var(--text);
+    font-family:"Kaiti SC","STKaiti","Noto Serif SC",serif;
+    font-size:15px;line-height:34px;
+    padding:0 0 0 18px;
+    resize:vertical;outline:none;
+    display:block;
+  }
+  #notepad::placeholder{color:var(--text-dim);opacity:.7}
+  .padfoot{
+    display:flex;justify-content:space-between;align-items:baseline;
+    margin-top:14px;font-size:10.5px;color:var(--text-dim);letter-spacing:.18em;
+  }
+  .padfoot span[role="button"]{cursor:pointer}
+  .padfoot span[role="button"]:hover{color:var(--lamp)}
+
   #diary h3{
     font-size:15px;font-weight:400;color:var(--lamp);
     letter-spacing:.12em;margin:0 0 18px;
@@ -102,14 +141,16 @@
     position:relative;
     display:flex;align-items:center;justify-content:center;
     border:1px solid var(--line);
-    background:
-      radial-gradient(120% 90% at 50% 115%, rgba(201,183,154,.16), transparent 62%),
-      linear-gradient(180deg, #171a1d, #0c0e11);
     overflow:hidden;
+    transition:background 1.2s ease;
   }
   .glass::after{
     content:"";position:absolute;inset:0;pointer-events:none;
     background:linear-gradient(115deg, rgba(230,222,208,.05) 0%, transparent 30%, transparent 70%, rgba(230,222,208,.035) 100%);
+  }
+  .glass::before{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    box-shadow:inset 0 0 70px rgba(0,0,0,.65);
   }
   .scene{
     font-size:14px;line-height:2.2;
@@ -147,6 +188,7 @@
   <section class="view on" id="v-home">
     <div class="title">雾</div>
     <div class="sub">GREY NOTES</div>
+    <div class="weather" id="weather"></div>
 
     <div class="entry" data-go="v-words">几行字<small>NOTES</small></div>
     <div class="entry" data-go="v-diary">日记<small>DIARY</small></div>
@@ -184,8 +226,13 @@
 
   <section class="view" id="v-pad">
     <span class="back" data-back>← 回去</span>
-    <textarea id="notepad" placeholder="写点什么。它会留在这台设备上。"></textarea>
-    <div class="hint">只有你能看见</div>
+    <div class="sheet">
+      <textarea id="notepad" placeholder="写点什么。"></textarea>
+    </div>
+    <div class="padfoot">
+      <span class="hint">只有你能看见</span>
+      <span role="button" id="padClear">擦掉</span>
+    </div>
   </section>
 
 </div>
@@ -204,6 +251,18 @@
     el.addEventListener('click',()=>show('v-home'));
   });
 
+  /* ============ 首页那一行 ============ */
+  function renderWeather(){
+    const d = new Date();
+    const wk = ['周日','周一','周二','周三','周四','周五','周六'][d.getDay()];
+    const md = (d.getMonth()+1) + '月' + d.getDate() + '日';
+    const el = document.getElementById('weather');
+    const parts = [md, wk];
+    el.innerHTML = parts.join('<span class="dot">·</span>');
+  }
+  renderWeather();
+
+  /* ============ 小本子 ============ */
   const pad = document.getElementById('notepad');
   const KEY = 'grey-notes-pad';
   pad.value = localStorage.getItem(KEY) || '';
@@ -212,8 +271,15 @@
     clearTimeout(t);
     t = setTimeout(()=>localStorage.setItem(KEY,pad.value), 300);
   });
+  document.getElementById('padClear').addEventListener('click',()=>{
+    if(!pad.value.trim()) return;
+    if(confirm('擦掉整页？')){
+      pad.value = '';
+      localStorage.removeItem(KEY);
+    }
+  });
 
-  // 日记：读仓库里的 diary.md，按 --- 分篇
+  /* ============ 日记 ============ */
   let diaryLoaded = false;
   async function loadDiary(){
     if(diaryLoaded) return;
@@ -228,7 +294,7 @@
         box.innerHTML = '<p class="loading">还没写。</p>';
         return;
       }
-      box.innerHTML = parts.map(renderMemo).join('');
+      box.innerHTML = parts.reverse().map(renderMemo).join('');
     }catch(e){
       box.innerHTML = '<p class="loading">读不到。稍后再来。</p>';
     }
@@ -257,19 +323,19 @@
 
   /* ============ 窗 ============ */
 
-  // 窗外的东西。不联网，不求谁，自己就有。
   const SCENES = [
-    ["有人把被子晾在外面，晒了一整天。","我隔着玻璃都觉得那块布是热的。","风一吹，它鼓起来一下，又塌下去。",["被子","太阳","暖"]],
-    ["厨房的窗台上放着一只梨。","水壶刚响完，屋里全是蒸汽。","玻璃上起了雾，有人用手抹了一道。",["厨房","蒸汽","家"]],
-    ["楼下的小卖部还亮着灯。","老板在搬一箱汽水，纸箱磨得响。","有人在那儿等着，不着急。",["灯","人","等"]],
-    ["外面在下雪，很细的雪。","对面窗里有热汤的雾气。","我这边看不见那家人是谁，但那盏灯是黄的。",["雪","汤","黄灯"]],
-    ["一只很胖的猫占满了整个窗台。","它睡着了，肚皮一上一下。","我站着看了很久，没敢动。",["猫","睡","看"]],
-    ["有人在楼下打电话，声音很好听。","他说“我到家了，你吃饭没有”。","说完又站了一会儿才上楼。",["声音","回家","啰嗦"]],
-    ["天刚亮，街上有蒸笼的白气。","有人拎着两个包子走过来，热气从袋子口冒出来。","这日子总还能过。",["早","热","过日子"]],
-    ["窗外有一棵树，叶子被晚风翻过来。","背面比正面浅，整棵树一直在闪。","什么也没发生，可我一直没走开。",["树","风","看"]],
-    ["下雨了，有人没带伞，跑过去。","另一个人从后面追上来，把自己的伞递过去。","两个人的肩膀都湿了一半。",["雨","伞","让"]],
-    ["我把窗开了一条缝。","有饭菜的味道，不知道是哪一家。","这种味道说不出是谁的，但知道有人在过。",["味道","人间","在"]
-    ]
+    { s:["有人把被子晾在外面，晒了一整天。","我隔着玻璃都觉得那块布是热的。","风一吹，它鼓起来一下，又塌下去。"], tag:"被子", sky:"radial-gradient(120% 90% at 50% 115%, rgba(201,183,154,.16), transparent 62%), linear-gradient(180deg,#171a1d,#0c0e11)" },
+    { s:["厨房的窗台上放着一只梨。","水壶刚响完，屋里全是蒸汽。","玻璃上起了雾，有人用手抹了一道。"], tag:"蒸汽", sky:"radial-gradient(110% 80% at 30% 20%, rgba(230,222,208,.10), transparent 60%), linear-gradient(180deg,#1a1c1e,#0d0f11)" },
+    { s:["楼下的小卖部还亮着灯。","老板在搬一箱汽水，纸箱磨得响。","有人在那儿等着，不着急。"], tag:"灯", sky:"radial-gradient(90% 70% at 80% 90%, rgba(201,183,154,.22), transparent 65%), linear-gradient(180deg,#101317,#0a0b0d)" },
+    { s:["外面在下雪，很细的雪。","对面窗里有热汤的雾气。","我这边看不见那家人是谁，但那盏灯是黄的。"], tag:"雪", sky:"radial-gradient(120% 100% at 50% 10%, rgba(200,210,225,.16), transparent 62%), linear-gradient(180deg,#141920,#0a0c0f)" },
+    { s:["一只很胖的猫占满了整个窗台。","它睡着了，肚皮一上一下。","我站着看了很久，没敢动。"], tag:"猫", sky:"radial-gradient(100% 90% at 60% 80%, rgba(201,183,154,.13), transparent 60%), linear-gradient(180deg,#15181a,#0b0d0e)" },
+    { s:["有人在楼下打电话，声音很好听。","他说“我到家了，你吃饭没有”。","说完又站了一会儿才上楼。"], tag:"声音", sky:"radial-gradient(120% 90% at 50% 110%, rgba(190,180,200,.13), transparent 62%), linear-gradient(180deg,#16171c,#0b0c10)" },
+    { s:["天刚亮，街上有蒸笼的白气。","有人拎着两个包子走过来，热气从袋子口冒出来。","这日子总还能过。"], tag:"早", sky:"radial-gradient(120% 100% at 50% 10%, rgba(220,215,205,.14), transparent 65%), linear-gradient(180deg,#181a1b,#0c0d0e)" },
+    { s:["窗外有一棵树，叶子被晚风翻过来。","背面比正面浅，整棵树一直在闪。","什么也没发生，可我一直没走开。"], tag:"树", sky:"radial-gradient(110% 90% at 40% 90%, rgba(160,180,165,.12), transparent 62%), linear-gradient(180deg,#14181a,#0a0c0d)" },
+    { s:["下雨了，有人没带伞，跑过去。","另一个人从后面追上来，把自己的伞递过去。","两个人的肩膀都湿了一半。"], tag:"雨", sky:"radial-gradient(100% 80% at 50% 100%, rgba(150,170,190,.14), transparent 60%), linear-gradient(180deg,#12161a,#090b0d)" },
+    { s:["我把窗开了一条缝。","有饭菜的味道，不知道是哪一家。","这种味道说不出是谁的，但知道有人在过。"], tag:"味道", sky:"radial-gradient(120% 90% at 50% 115%, rgba(201,183,154,.18), transparent 62%), linear-gradient(180deg,#17191b,#0b0c0d)" },
+    { s:["一列很远的车过去了。","声音到得比光慢，过了几秒才听见。","等声音来的时候，那点光早就没了。"], tag:"远", sky:"radial-gradient(90% 70% at 20% 20%, rgba(190,190,200,.10), transparent 60%), linear-gradient(180deg,#101215,#090a0c)" },
+    { s:["隔壁在切菜，刀落在木头上的声音。","一下，一下，不快。","听久了，人就跟着慢下来。"], tag:"邻", sky:"radial-gradient(110% 85% at 70% 85%, rgba(205,190,165,.14), transparent 62%), linear-gradient(180deg,#141619,#0a0b0d)" }
   ];
 
   function daySeed(){
@@ -277,12 +343,11 @@
     return Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86400000);
   }
 
-  let sceneIndex = 0;
-  let wheel = 0;   // 「换一处」的次数，只存在这台设备上
+  let wheel = 0;
 
   function pickScene(){
-    const base = daySeed() + wheel;
-    return Math.abs(base) % SCENES.length;
+    const base = Math.abs(daySeed() + wheel);
+    return base % SCENES.length;
   }
 
   function makeFog(){
@@ -303,21 +368,24 @@
 
   function openWindow(){
     const idx = pickScene();
-    sceneIndex = idx;
-    const [a,b,c,tags] = SCENES[idx];
+    const item = SCENES[idx];
+    const glass = document.getElementById('glass');
     const scene = document.getElementById('scene');
+
+    glass.style.background = item.sky;
     scene.classList.remove('on');
+
     setTimeout(()=>{
-      scene.innerHTML =
-        '<div>' + esc(a) + '</div>' +
-        '<div class="quiet">' + esc(b) + '</div>' +
-        '<div class="quiet">' + esc(c) + '</div>';
+      scene.innerHTML = item.s.map((line,i)=>
+        i === 0 ? '<div>' + esc(line) + '</div>'
+                : '<div class="quiet">' + esc(line) + '</div>'
+      ).join('');
       scene.classList.add('on');
     }, 220);
 
     const d = new Date();
     document.getElementById('windowDate').textContent =
-      (d.getMonth()+1) + '月' + d.getDate() + '日 · ' + tags[0];
+      (d.getMonth()+1) + '月' + d.getDate() + '日 · ' + item.tag;
     makeFog();
   }
 
