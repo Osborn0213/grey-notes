@@ -6,6 +6,8 @@
 <meta name="theme-color" content="#0e1013">
 <title>雾</title>
 <link rel="stylesheet" href="desk.css">
+<link rel="stylesheet" href="wide.css">
+<link rel="stylesheet" href="boot.css">
 <style>
   :root{
     --ink:#0e1013; --ink-2:#181c22; --text:#dcd7ce; --text-dim:#8a8078;
@@ -76,7 +78,6 @@
   .switch svg{width:17px;height:17px;stroke:var(--text-dim);fill:none;stroke-width:1.2}
   .switch:hover svg{stroke:var(--lamp)}
 </style>
-<link rel="stylesheet" href="wide.css">
 </head>
 <body>
 
@@ -252,6 +253,12 @@
         </div>
       </section>
     </div>
+
+    <!-- 开机画面 -->
+    <div id="boot">
+      <div class="line">雾散了。我在。</div>
+      <div class="hint">点一下</div>
+    </div>
   </div>
 </div>
 
@@ -260,5 +267,6 @@
 </div>
 
 <script src="app.js"></script>
+<script src="boot.js"></script>
 </body>
 </html>
